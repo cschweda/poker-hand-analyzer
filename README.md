@@ -73,6 +73,16 @@ Try the [live demo](https://poker-analyzer.netlify.app/) to see the analyzer in 
 - Detailed explanations of how each poker hand is detected
 - Comprehensive validation and error checking
 - Debug logging for analysis verification
+- Smart tooltips for technical terms with clear explanations
+- Full 32-bit binary representation with color-coded bits for ranks and suits
+- Visual indicators for detected patterns (straights, flushes, pairs, etc.)
+
+## Related Resources
+
+If you're interested in learning more about the binary and bitwise concepts used in this project:
+
+- [JavaScript Bitwise Operations Guide](https://js-bitwise.netlify.app/) - A comprehensive tutorial on bitwise operators in JavaScript
+- [Binary Number Cheat Sheet](https://binary-cheat.netlify.app/) - A reference guide for understanding binary representation and number systems
 
 ## Demo
 
@@ -116,6 +126,14 @@ To view debug information:
 2. Go to Console tab
 3. Deal a new hand or analyze existing hand
 4. Review the step-by-step analysis
+
+## Recent Enhancements
+
+- Added comprehensive tooltips for technical terms throughout the application
+- Improved binary representation with full 32-bit display and no truncation
+- Enhanced UI with responsive design and better mobile support
+- Added links to related resources for learning more about binary and bitwise operations
+- Improved visual feedback for different poker hand patterns
 
 ## Building and Running
 

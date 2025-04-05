@@ -42,6 +42,35 @@
           rather than traditional conditional logic (if/else statements).
         </p>
         <p>
+          The analyzer was inspired by a remarkably concise implementation found
+          on
+          <a
+            href="https://www.codeproject.com/Articles/569271/A-Poker-hand-analyzer-in-JavaScript-using-bit-math"
+            target="_blank"
+            class="text-blue-400 hover:underline"
+            >CodeProject</a
+          >, which uses less than 25 lines of code to accurately determine any
+          poker hand. At its core, the analyzer works by:
+        </p>
+        <ul class="list-disc pl-6 mb-4 text-gray-300">
+          <li>
+            Encoding each card as bit positions in a 32-bit integer (one bit for
+            each rank, one bit for each suit)
+          </li>
+          <li>
+            Using bitwise operations to detect patterns like straights and
+            flushes by examining the arrangement of these bits
+          </li>
+          <li>
+            Employing a clever counting technique that uses 4-bit slots to track
+            occurrences of each rank
+          </li>
+          <li>
+            Applying mathematical transformations (like modulo 15) to generate
+            unique values that map to specific hand types
+          </li>
+        </ul>
+        <p>
           The original author aimed to create a concise and potentially fast
           algorithm by exploiting JavaScript's features like
           <span class="tech-term"
@@ -70,6 +99,87 @@
           understanding its mechanics offers insight into bit manipulation
           techniques.
         </p>
+        <p class="mt-4">
+          Bitwise operations are fundamental to this analyzer and to computing
+          in general. They work directly with the binary representation of
+          numbers, manipulating individual bits for tasks that would otherwise
+          require multiple comparisons or complex data structures. If you're
+          interested in learning more about bitwise operations:
+        </p>
+
+        <h3 class="text-xl mt-6 mb-4">Related Resources</h3>
+        <div class="flex flex-wrap gap-4 mb-6">
+          <a
+            href="https://js-bitwise.netlify.app/"
+            target="_blank"
+            class="card-link"
+          >
+            <div
+              class="bg-gray-850 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 p-6 max-w-md w-full border border-gray-700/50 hover:-translate-y-1 hover:scale-[1.02]"
+            >
+              <h4 class="text-blue-400 text-xl font-semibold mb-3">
+                JavaScript Bitwise Operations Guide
+              </h4>
+              <p class="text-gray-300 mb-4">
+                A comprehensive tutorial on bitwise operators in JavaScript.
+                Learn how AND, OR, XOR, and bit shifts work at the binary level.
+              </p>
+              <div
+                class="text-gray-500 text-sm mt-auto pt-2 border-t border-gray-700"
+              >
+                Bitwise Operations • Tutorial
+              </div>
+            </div>
+          </a>
+
+          <a
+            href="https://binary-cheat.netlify.app/"
+            target="_blank"
+            class="card-link"
+          >
+            <div
+              class="bg-gray-850 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 p-6 max-w-md w-full border border-gray-700/50 hover:-translate-y-1 hover:scale-[1.02]"
+            >
+              <h4 class="text-blue-400 text-xl font-semibold mb-3">
+                Binary Number Cheat Sheet
+              </h4>
+              <p class="text-gray-300 mb-4">
+                A reference guide for understanding binary representation,
+                number systems, and the mathematical foundation of computer
+                science.
+              </p>
+              <div
+                class="text-gray-500 text-sm mt-auto pt-2 border-t border-gray-700"
+              >
+                Binary Numbers • Reference Guide
+              </div>
+            </div>
+          </a>
+
+          <a
+            href="https://www.codeproject.com/Articles/569271/A-Poker-hand-analyzer-in-JavaScript-using-bit-math"
+            target="_blank"
+            class="card-link"
+          >
+            <div
+              class="bg-gray-850 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 p-6 max-w-md w-full border border-gray-700/50 hover:-translate-y-1 hover:scale-[1.02]"
+            >
+              <h4 class="text-blue-400 text-xl font-semibold mb-3">
+                Original Poker Hand Analyzer
+              </h4>
+              <p class="text-gray-300 mb-4">
+                The original CodeProject article that inspired this
+                visualization, featuring a remarkably concise poker hand
+                analysis algorithm using bit manipulation.
+              </p>
+              <div
+                class="text-gray-500 text-sm mt-auto pt-2 border-t border-gray-700"
+              >
+                CodeProject • Article
+              </div>
+            </div>
+          </a>
+        </div>
       </section>
 
       <section class="content-section">
