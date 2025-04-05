@@ -19,15 +19,54 @@
           This page explores a clever JavaScript function designed to analyze a
           5-card poker hand and determine its rank (e.g., Pair, Straight,
           Flush). What makes this analyzer unique is its heavy reliance on
-          bitwise and mathematical operations rather than traditional
-          conditional logic (if/else statements).
+          <span class="tech-term"
+            >bitwise operations<span class="tooltip"
+              ><span class="tooltip-title">Bitwise Operations</span
+              ><span class="tooltip-content"
+                >Operations that work with individual bits in binary numbers,
+                including AND (&amp;), OR (|), XOR (^), and bit shifts
+                (&lt;&lt;, &gt;&gt;).</span
+              ></span
+            ></span
+          >
+          and
+          <span class="tech-term"
+            >mathematical operations<span class="tooltip"
+              ><span class="tooltip-title">Mathematical Operations</span
+              ><span class="tooltip-content"
+                >Arithmetic techniques like division, modulo, and exponentiation
+                used to perform calculations on numerical values.</span
+              ></span
+            ></span
+          >
+          rather than traditional conditional logic (if/else statements).
         </p>
         <p>
           The original author aimed to create a concise and potentially fast
-          algorithm by exploiting JavaScript's features like weakly typed
-          variables (implicit type conversions) and the 52-bit mantissa used in
-          its floating-point number representation. While the resulting code is
-          compact, it's less readable than a standard approach. However,
+          algorithm by exploiting JavaScript's features like
+          <span class="tech-term"
+            >weakly typed variables<span class="tooltip"
+              ><span class="tooltip-title">Weakly Typed Variables</span
+              ><span class="tooltip-content"
+                >In JavaScript, variables can change types automatically during
+                operations, allowing implicit conversions between numbers,
+                strings, and other types.</span
+              ></span
+            ></span
+          >
+          (implicit type conversions) and the
+          <span class="tech-term"
+            >52-bit mantissa<span class="tooltip"
+              ><span class="tooltip-title">52-bit Mantissa</span
+              ><span class="tooltip-content"
+                >Part of JavaScript's IEEE-754 floating-point number format that
+                stores significant digits with high precision, allowing for
+                complex bit manipulation.</span
+              ></span
+            ></span
+          >
+          used in its floating-point number representation. While the resulting
+          code is compact, it's less readable than a standard approach. However,
           understanding its mechanics offers insight into bit manipulation
           techniques.
         </p>
@@ -347,7 +386,27 @@ function rankPokerHand(cs, ss) {
             <thead>
               <tr>
                 <th>Card</th>
-                <th>Binary Representation (MSB → LSB)</th>
+                <th>
+                  Binary Representation (<span class="tech-term"
+                    >MSB<span class="tooltip"
+                      ><span class="tooltip-title">Most Significant Bit</span
+                      ><span class="tooltip-content"
+                        >The bit position carrying the highest value in a binary
+                        number, located at the leftmost position.</span
+                      ></span
+                    ></span
+                  >
+                  →
+                  <span class="tech-term"
+                    >LSB<span class="tooltip"
+                      ><span class="tooltip-title">Least Significant Bit</span
+                      ><span class="tooltip-content"
+                        >The bit position carrying the lowest value in a binary
+                        number, located at the rightmost position.</span
+                      ></span
+                    ></span
+                  >)
+                </th>
                 <th>Explanation</th>
               </tr>
             </thead>
@@ -548,9 +607,29 @@ function rankPokerHand(cs, ss) {
       <section class="content-section">
         <h2>Interactive Demo</h2>
         <p>
-          Click the button below to deal a random 5-card hand and see the
-          analyzer determine its rank. The visualization below shows how the
-          bitwise operations work.
+          Click the button below to deal a random 5-card
+          <span class="tech-term"
+            >poker hand<span class="tooltip"
+              ><span class="tooltip-title">Poker Hand</span
+              ><span class="tooltip-content"
+                >A combination of five playing cards dealt to a player in poker
+                games, ranked based on specific patterns like pairs, straights,
+                and flushes.</span
+              ></span
+            ></span
+          >
+          and see the analyzer determine its rank. The visualization below shows
+          how the
+          <span class="tech-term"
+            >bitwise operations<span class="tooltip"
+              ><span class="tooltip-title">Bitwise Operations</span
+              ><span class="tooltip-content"
+                >Operations that manipulate individual bits in binary numbers to
+                efficiently detect patterns in the poker hand.</span
+              ></span
+            ></span
+          >
+          work.
         </p>
 
         <div class="text-center mb-6">

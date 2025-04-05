@@ -447,8 +447,7 @@
   padding: 0.75rem;
   vertical-align: middle;
   border-bottom: 1px solid rgba(75, 85, 99, 0.4);
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
   white-space: normal;
   word-wrap: break-word;
   word-break: normal;
@@ -482,8 +481,7 @@
 
 .bit-reference-table th:nth-child(3),
 .bit-reference-table td:nth-child(3) {
-  width: 1%;
-  white-space: nowrap;
+  width: auto;
 }
 
 .bit-reference-table th:nth-child(4),
@@ -936,13 +934,20 @@
 .tooltip-title {
   color: theme('colors.blue.400');
   font-weight: 600;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
   font-family: 'Consolas', 'Monaco', monospace;
+  display: block;
+  border-bottom: 1px solid theme('colors.gray.700');
+  padding-bottom: 0.25rem;
+  text-align: center;
+  font-size: 1rem;
 }
 
 .tooltip-content {
   font-size: 0.9rem;
   line-height: 1.4;
+  display: block;
+  padding-top: 0.25rem;
 }
 
 /* Suit Bits Reference Table */
@@ -1551,8 +1556,8 @@ td[class*="py-2"] span.text-amber-400 {
 /* Ensure all table cells contain their text */
 .bit-reference-table td,
 .bit-reference-table th {
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
+  text-overflow: clip;
   white-space: normal;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -1569,13 +1574,12 @@ td[class*="py-2"] span.text-amber-400 {
 .bit-reference-table th:nth-child(2),
 .bit-reference-table td:nth-child(2) {
   width: auto;
-  white-space: nowrap;
+  min-width: 600px;
 }
 
 .bit-reference-table th:nth-child(3),
 .bit-reference-table td:nth-child(3) {
-  width: 1%;
-  white-space: nowrap;
+  width: auto;
 }
 
 .bit-reference-table th:nth-child(4),
@@ -1597,9 +1601,9 @@ td[class*="py-2"] span.text-amber-400 {
   padding: 0.75rem;
   vertical-align: middle;
   border-bottom: 1px solid rgba(75, 85, 99, 0.4);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  word-wrap: break-word;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: pre;
   overflow-wrap: break-word;
 }
 
@@ -1616,8 +1620,8 @@ td[class*="py-2"] span.text-amber-400 {
 /* For binary cells in step analysis */
 .binary-cell {
   white-space: pre !important;
-  overflow-x: auto !important;
-  max-width: 100%;
+  overflow-x: visible !important;
+  max-width: none !important;
 }
 
 /* Remove the specific Spades table overrides that are no longer needed */
@@ -1642,9 +1646,10 @@ td[class*="py-2"] span.text-amber-400 {
 .bit-reference-table .font-mono,
 .bit-reference-table td:nth-child(2) {
   font-family: 'Consolas', 'Monaco', monospace;
-  white-space: nowrap; 
+  white-space: pre;
   font-size: 0.85rem;
   letter-spacing: 0;
+  overflow: visible !important;
 }
 
 /* Make sure binary spans are properly sized */
@@ -1686,7 +1691,7 @@ td[class*="py-2"] span.text-amber-400 {
 
 /* Standard column widths for all bit-reference-tables to maintain consistency across tabs */
 .bit-reference-table {
-  table-layout: fixed;
+  table-layout: auto;
   width: 100%;
 }
 
@@ -1700,13 +1705,14 @@ td[class*="py-2"] span.text-amber-400 {
 /* Binary representation column - consistent across all tables */
 .bit-reference-table th:nth-child(2),
 .bit-reference-table td:nth-child(2) {
-  width: 60%;
+  width: auto;
+  min-width: 600px;
 }
 
 /* Explanation column - consistent across all tables */
 .bit-reference-table th:nth-child(3),
 .bit-reference-table td:nth-child(3) {
-  width: calc(100% - 60% - 80px); /* Remaining width after card and binary */
+  width: auto;
 }
 
 /* Remove old column-specific styles for other tables since all tables now have same structure */

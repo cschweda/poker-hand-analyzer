@@ -122,10 +122,10 @@ function generateBitReferenceTables() {
   explanationDiv.innerHTML = `
     <p class="mb-2"><strong>Understanding the 32-bit Binary Representation:</strong></p>
     <ul class="list-disc pl-6 space-y-2">
-      <li>The full 32-bit number is divided into 8 groups of 4 bits (called <strong>nibbles</strong>) for readability, with spaces between each nibble.</li>
+      <li>The full 32-bit number is divided into 8 groups of 4 bits (called <span class="tech-term"><strong>nibbles</strong><span class="tooltip"><span class="tooltip-title">Nibble</span><span class="tooltip-content">A group of 4 bits, representing half a byte. In computing, nibbles are often used for compact representation of small values from 0-15.</span></span></span>) for readability, with spaces between each nibble.</li>
       <li>Each card's <strong class="text-emerald-400">rank</strong> sets a single bit in positions 2-14:
         <ul class="list-none mt-2 space-y-1 font-mono">
-          <li>• When a bit is set (1), it's shown with <span class="text-emerald-400 bg-emerald-900/30 px-1">emerald shading</span></li>
+          <li>• When a bit is <span class="tech-term">set<span class="tooltip"><span class="tooltip-title">Set Bit</span><span class="tooltip-content">When a bit has a value of 1 rather than 0. In this analyzer, a set bit represents the presence of a specific rank or suit.</span></span></span> (1), it's shown with <span class="text-emerald-400 bg-emerald-900/30 px-1">emerald shading</span></li>
           <li>• Example: Ace sets bit 14, King sets bit 13, etc.</li>
           <li>• Only one rank bit is set per card</li>
         </ul>
@@ -144,8 +144,8 @@ function generateBitReferenceTables() {
         <span class="mb-2">Reading the 32-bit number:</span>
         <ul class="list-none mt-2 space-y-1 font-mono">
           <li>• Full format: <code>0000 0000 0000 0000 0000 0000 0000 0000</code></li>
-          <li>• Most significant bits (MSB) are on the left</li>
-          <li>• Least significant bits (LSB) are on the right</li>
+          <li>• <span class="tech-term">Most significant bits<span class="tooltip"><span class="tooltip-title">Most Significant Bits (MSB)</span><span class="tooltip-content">The leftmost bits in a binary number that carry the highest values. In this analyzer, these bits represent high card ranks.</span></span></span> (MSB) are on the left</li>
+          <li>• <span class="tech-term">Least significant bits<span class="tooltip"><span class="tooltip-title">Least Significant Bits (LSB)</span><span class="tooltip-content">The rightmost bits in a binary number that carry the lowest values. In this analyzer, these bits represent suits and low card ranks.</span></span></span> (LSB) are on the right</li>
           <li>• Bit positions increase right-to-left (0-31)</li>
           <li class="mt-4">• <span class="text-emerald-400 bg-emerald-900/30 px-1">Emerald shading</span> = Set rank bit (single bit in positions 2-14)</li>
           <li>• <span class="text-amber-400 bg-amber-900/30 px-1">Amber shading</span> = Set suit bit (single bit in positions 0-3)</li>
@@ -522,7 +522,7 @@ function updateStepAnalysis(hand) {
           <ul class="list-disc ml-6 mb-4 text-gray-300">
             <li>The card's rank (2-14) sets a single bit in positions 2-14 (<span class="text-emerald-400 bg-emerald-900/30 px-1">emerald shading</span>)</li>
             <li>The card's suit (♠♣♥♦) sets a single bit in the rightmost 4 positions (<span class="text-amber-400 bg-amber-900/30 px-1">amber shading</span>)</li>
-            <li>This creates a unique binary fingerprint for each card, with distinct shading for rank and suit bits</li>
+            <li>This creates a unique <span class="tech-term">binary fingerprint<span class="tooltip"><span class="tooltip-title">Binary Fingerprint</span><span class="tooltip-content">A unique binary pattern that identifies a specific card, with one bit set for its rank and one bit set for its suit.</span></span></span> for each card, with distinct shading for rank and suit bits</li>
           </ul>
         </p>
         <table class="w-full text-left step-analysis-table">
@@ -552,7 +552,7 @@ function updateStepAnalysis(hand) {
       <div class="calculation-step">
         <div class="font-semibold mb-2">SECTION 2: Combined Pattern</div>
         <p class="text-gray-300 mb-4">
-          All card patterns are merged using bitwise OR operations. This creates a single 32-bit pattern where:
+          All card patterns are merged using <span class="tech-term">bitwise OR operations<span class="tooltip"><span class="tooltip-title">Bitwise OR</span><span class="tooltip-content">An operation (|) that combines bits, setting a result bit to 1 if any corresponding input bit is 1. Used to merge card patterns together.</span></span></span>. This creates a single 32-bit pattern where:
           <ul class="list-disc ml-6 mb-4 text-gray-300">
             <li>Each set rank bit (<span class="text-emerald-400 bg-emerald-900/30 px-1">emerald shading</span>) represents a rank present in the hand</li>
             <li>Each set suit bit (<span class="text-amber-400 bg-amber-900/30 px-1">amber shading</span>) represents the suits present</li>
@@ -580,11 +580,11 @@ function updateStepAnalysis(hand) {
         <p class="text-gray-300 mb-4">
           The combined pattern is analyzed to detect specific hand types:
           <ul class="list-disc ml-6 mb-4 text-gray-300">
-            <li>Straight detection: Checks if set rank bits (<span class="text-emerald-400 bg-emerald-900/30 px-1">emerald</span>) are consecutive</li>
-            <li>Ace-low straight: Special case check for specific rank pattern</li>
-            <li>Flush detection: Verifies suit bits (<span class="text-amber-400 bg-amber-900/30 px-1">amber</span>) match</li>
+            <li><span class="tech-term">Straight detection<span class="tooltip"><span class="tooltip-title">Straight Detection</span><span class="tooltip-content">A technique to identify five consecutive card ranks by normalizing the bit pattern and checking if it equals 31 (binary: 11111).</span></span></span>: Checks if set rank bits (<span class="text-emerald-400 bg-emerald-900/30 px-1">emerald</span>) are consecutive</li>
+            <li><span class="tech-term">Ace-low straight<span class="tooltip"><span class="tooltip-title">Ace-low Straight</span><span class="tooltip-content">A special case straight where Ace acts as the lowest card (A-2-3-4-5). Detected by checking for a specific bit pattern (0x403c).</span></span></span>: Special case check for specific rank pattern</li>
+            <li><span class="tech-term">Flush detection<span class="tooltip"><span class="tooltip-title">Flush Detection</span><span class="tooltip-content">A technique to identify when all five cards share the same suit by comparing bit patterns in the suit positions.</span></span></span>: Verifies suit bits (<span class="text-amber-400 bg-amber-900/30 px-1">amber</span>) match</li>
             <li>Other patterns: Analyzes bit groupings to detect pairs, three of a kind, etc.</li>
-            <li>The normalized pattern helps identify straights by removing gaps between set bits</li>
+            <li>The <span class="tech-term">normalized pattern<span class="tooltip"><span class="tooltip-title">Normalized Pattern</span><span class="tooltip-content">The result of dividing the bit pattern by its lowest set bit, which aligns patterns to start from bit 0, making pattern recognition easier.</span></span></span> helps identify straights by removing gaps between set bits</li>
           </ul>
         </p>
         <table class="w-full text-left step-analysis-table">
@@ -638,7 +638,7 @@ function updateStepAnalysis(hand) {
           <ul class="list-disc ml-6 mb-4 text-gray-300">
             <li>Combined pattern shows all ranks (<span class="text-emerald-400 bg-emerald-900/30 px-1">emerald</span>) and suits (<span class="text-amber-400 bg-amber-900/30 px-1">amber</span>) present</li>
             <li>Normalized pattern helps identify special sequences in the rank bits</li>
-            <li>Bit grouping analysis detects pairs, three of a kind, full house, etc.</li>
+            <li><span class="tech-term">Bit grouping analysis<span class="tooltip"><span class="tooltip-title">Bit Grouping Analysis</span><span class="tooltip-content">A technique that counts occurrences of each rank in a 4-bit space, enabling detection of pairs, three of a kind, and other poker hand patterns.</span></span></span> detects pairs, three of a kind, full house, etc.</li>
             <li>The shaded bits visually confirm the hand's composition</li>
           </ul>
         </p>
@@ -668,7 +668,7 @@ function updateStepAnalysis(hand) {
             )}</td>
           </tr>
           <tr>
-            <td class="pr-4">Hex Value</td>
+            <td class="pr-4"><span class="tech-term">Hex Value<span class="tooltip"><span class="tooltip-title">Hexadecimal Value</span><span class="tooltip-content">A base-16 representation of the binary pattern, where each digit represents 4 bits. More compact than binary for displaying large numbers.</span></span></span></td>
             <td class="font-mono">0x${combinedValue
               .toString(16)
               .toUpperCase()
