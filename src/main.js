@@ -78,6 +78,21 @@ function formatBinaryWithHighlight(
 function generateBitReferenceTables() {
   console.log("Generating bit reference tables...");
 
+  // First, find or create the tab container
+  let tabContainer = document.querySelector(".tab-container");
+  if (!tabContainer) {
+    // Create and insert the tab container if it doesn't exist
+    tabContainer = document.createElement("div");
+    tabContainer.className = "tab-container";
+    const contentSection = document.querySelector(".content-section");
+    if (contentSection) {
+      contentSection.appendChild(tabContainer);
+    } else {
+      console.warn("No content section found to add tab container");
+      return; // Exit if we can't find a place to add the container
+    }
+  }
+
   const ranks = [
     { name: "A", value: 14 },
     { name: "K", value: 13 },
@@ -102,7 +117,6 @@ function generateBitReferenceTables() {
   };
 
   // Add explanation div before the tables
-  const tabContainer = document.querySelector(".tab-container");
   const explanationDiv = document.createElement("div");
   explanationDiv.className = "mb-6 p-4 bg-gray-900 rounded-lg text-gray-300";
   explanationDiv.innerHTML = `
@@ -189,55 +203,59 @@ function generateBitReferenceTables() {
       </li>
     </ul>
   `;
-  tabContainer.insertBefore(explanationDiv, tabContainer.firstChild);
+  tabContainer.appendChild(explanationDiv);
 
+  // Create tables for each suit
   Object.entries(suitConfigs).forEach(([suit, config]) => {
     console.log(`Generating table for ${suit}...`);
-    const tableBody = document.querySelector(`#${config.id} tbody`);
 
-    if (!tableBody) {
-      console.warn(`Table body not found for ${suit}`);
-      return;
+    // Create table container if it doesn't exist
+    let tableContainer = document.getElementById(config.id);
+    if (!tableContainer) {
+      tableContainer = document.createElement("div");
+      tableContainer.id = config.id;
+      tableContainer.className = "table-container";
+      tabContainer.appendChild(tableContainer);
     }
 
-    const rows = ranks.map((rank) => {
-      // Calculate the combined value (rank bit + suit bit)
+    // Create table structure
+    const table = document.createElement("table");
+    table.className = "bit-reference-table w-full";
+
+    // Add table header
+    const thead = document.createElement("thead");
+    thead.innerHTML = `
+      <tr>
+        <th>Card</th>
+        <th>Binary Pattern</th>
+        <th>Hex</th>
+      </tr>
+    `;
+    table.appendChild(thead);
+
+    // Create table body
+    const tbody = document.createElement("tbody");
+    ranks.forEach((rank) => {
       const rankBit = 1n << BigInt(rank.value);
       const suitBit = BigInt(config.bitValue);
       const combinedValue = rankBit | suitBit;
 
-      // Get positions of set bits for highlighting
-      const setPositions = [rank.value]; // Rank bit position
-      if (config.bitValue & 1) setPositions.push(0); // Spades
-      if (config.bitValue & 2) setPositions.push(1); // Clubs
-      if (config.bitValue & 4) setPositions.push(2); // Hearts
-      if (config.bitValue & 8) setPositions.push(3); // Diamonds
-
-      // Format binary with highlighting for all 32 bits
-      const binaryDisplay = formatBinaryWithHighlight(
-        combinedValue,
-        32,
-        setPositions
-      );
-      const hexValue = combinedValue
-        .toString(16)
-        .toUpperCase()
-        .padStart(4, "0");
-      const cardDisplay = `<span class="card-display ${
-        config.isRed ? "red" : ""
-      }">${rank.name}${config.symbol}</span>`;
-
-      return `
-        <tr>
-          <td class="py-2 px-4">${cardDisplay}</td>
-          <td class="py-2 px-4 binary-bits">${binaryDisplay}</td>
-          <td class="py-2 px-4">0x${hexValue}</td>
-        </tr>
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="card-display ${config.isRed ? "red" : ""}">${rank.name}${
+        config.symbol
+      }</td>
+        <td class="binary-bits">${formatBinaryWithHighlight(combinedValue, 32, [
+          rank.value,
+          Math.log2(config.bitValue),
+        ])}</td>
+        <td>0x${combinedValue.toString(16).toUpperCase().padStart(4, "0")}</td>
       `;
+      tbody.appendChild(tr);
     });
 
-    console.log(`Setting table content for ${suit}`);
-    tableBody.innerHTML = rows.join("");
+    table.appendChild(tbody);
+    tableContainer.appendChild(table);
   });
 
   console.log("Bit reference tables generation complete");
