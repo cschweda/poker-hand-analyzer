@@ -663,6 +663,9 @@
   /* Basic body styling for dark mode */
   body {
     @apply bg-gray-900 text-gray-200 font-sans;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
   /* Style for code blocks */
@@ -1714,4 +1717,11 @@ td[class*="py-2"] span.text-amber-400 {
 #diamonds .bit-reference-table th:nth-child(4),
 #diamonds .bit-reference-table td:nth-child(4) {
   display: none;
+}
+
+/* On mobile screens, use smaller padding */
+@media (max-width: 640px) {
+  body {
+    padding: 1rem;
+  }
 } 

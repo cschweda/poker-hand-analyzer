@@ -1,6 +1,6 @@
-# Poker Hand Analyzer
+# JavaScript Poker Hand Analyzer
 
-An interactive web application that demonstrates poker hand analysis using bit manipulation. This implementation is based on the brilliant bit manipulation technique described in [this CodeProject article](https://www.codeproject.com/Articles/569271/A-Poker-hand-analyzer-in-JavaScript-using-bit-math) by subskybox.
+This project visualizes how binary bit manipulation can analyze a 5-card poker hand with surprising efficiency.
 
 ## Original Implementation
 
@@ -42,6 +42,30 @@ function rankPokerHand(cs, ss) {
 
 Source: [@CodeProject](https://www.codeproject.com/Articles/569271/A-Poker-hand-analyzer-in-JavaScript-using-bit-math)
 
+## How It Works
+
+The analyzer uses bitwise operations to identify poker hands through four simple steps:
+
+1. **Card Encoding**: Each card is represented as a 32-bit binary number where:
+
+   - One bit is set for rank (positions 2-14)
+   - One bit is set for suit (positions 0-3)
+
+2. **Pattern Merging**: All 5 cards are combined using bitwise OR, creating a 32-bit pattern showing all ranks and suits present in the hand.
+
+3. **Straight Detection**: The algorithm checks if set rank bits are consecutive by:
+
+   - Finding the lowest set bit
+   - Dividing the pattern by this value
+   - Checking if the result equals 31 (binary: 11111)
+   - Special case for A-2-3-4-5 straight
+
+4. **Pattern Analysis**: Additional calculations detect other hand patterns (pairs, three of a kind, etc.) using clever grouping of bits.
+
+## Interactive Demo
+
+Try the [live demo](https://poker-analyzer.netlify.app/) to see the analyzer in action!
+
 ## Features
 
 - Interactive card dealing and hand analysis
@@ -49,6 +73,10 @@ Source: [@CodeProject](https://www.codeproject.com/Articles/569271/A-Poker-hand-
 - Detailed explanations of how each poker hand is detected
 - Comprehensive validation and error checking
 - Debug logging for analysis verification
+
+## Demo
+
+https://poker-analyzer.netlify.app/
 
 ## Debug & Validation
 
@@ -180,27 +208,6 @@ The application will be available at `http://localhost:8000` (or whatever port y
 
 - Node.js 16.x or higher
 - NPM 7.x or higher, Yarn 1.22.x or higher, or PNPM 6.x or higher
-
-
-## How It Works
-
-The application visualizes a poker hand analyzer that uses clever bit manipulation to determine poker hands. Here's how it works:
-
-1. **Card Representation**
-
-   - Each card's rank is represented as a bit position (2-14, where 14 is Ace)
-   - Suits are represented as bit flags (1=♠, 2=♣, 4=♥, 8=♦)
-
-2. **Pattern Detection**
-
-   - Straights are detected by checking for 5 consecutive set bits
-   - Flushes are detected by comparing suit flags
-   - Pairs/Three-of-a-kind/Four-of-a-kind are detected using bit counting
-
-3. **Visualization**
-   - Each step of the analysis is shown with binary representations
-   - Set bits are highlighted to show which positions matter
-   - Explanations are provided for each operation
 
 ## Technical Details
 
