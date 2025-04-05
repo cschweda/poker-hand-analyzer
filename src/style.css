@@ -37,9 +37,10 @@
 }
 
 .tab-btn.active {
-  background-color: theme('colors.gray.700');
-  color: theme('colors.white');
+  background-color: #374151;
+  color: white;
   opacity: 1;
+  position: relative;
 }
 
 .tab-btn.active::after {
@@ -47,9 +48,9 @@
   position: absolute;
   bottom: -1px;
   left: 0;
-  right: 0;
+  width: 100%;
   height: 2px;
-  background-color: theme('colors.blue.500');
+  background-color: #3b82f6; /* Blue highlight for active tab */
 }
 
 /* Important: Use display none/block for tab content visibility */
@@ -199,10 +200,56 @@
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 0.875rem;
   background: rgba(31, 41, 55, 0.5);
-  padding: 0.5rem;
+  padding: 0.75rem;
   border-radius: 0.25rem;
-  letter-spacing: 0.2em;
+  letter-spacing: 0;
   white-space: pre;
+  font-variant-numeric: tabular-nums;
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+
+.binary-bits span {
+  font-family: 'Consolas', 'Monaco', monospace;
+  white-space: pre;
+  vertical-align: middle;
+  display: inline-block;
+}
+
+/* Binary number text colors */
+.text-green-400 {
+  color: #4ade80;
+}
+
+.text-amber-400 {
+  color: #fbbf24;
+}
+
+.text-emerald-400 {
+  color: #34d399;
+}
+
+.bg-amber-900\/30 {
+  background-color: rgba(120, 53, 15, 0.3);
+}
+
+.bg-emerald-900\/30 {
+  background-color: rgba(6, 78, 59, 0.3);
+}
+
+.px-1 {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+/* Ensure monospaced numbers */
+.binary-bits,
+.bit-reference-table td .binary-bits,
+.bit-table td .binary-bits {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
 }
 
 /* Bit highlighting */
@@ -312,79 +359,195 @@
 
 /* Binary bits styling - consistent across all views */
 .binary-bits {
-  font-family: monospace;
-  white-space: nowrap;
-  display: inline-block;
-  font-size: 1rem;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.875rem;
   letter-spacing: 0.1em;
-  padding: 0.5rem;
-  background-color: rgba(31, 41, 55, 0.5);
-  border-radius: 0.25rem;
-}
-
-.rank-bit {
-  color: #fbbf24;
-  font-weight: bold;
-  background-color: rgba(251, 191, 36, 0.2);
-  padding: 0.1rem 0.2rem;
-  border-radius: 0.25rem;
-}
-
-.suit-bit {
-  color: #34d399;
-  font-weight: bold;
-  background-color: rgba(52, 211, 153, 0.2);
-  padding: 0.1rem 0.2rem;
-  border-radius: 0.25rem;
-}
-
-.bit-table td .binary-bits {
-  white-space: nowrap;
-  display: inline-block;
-}
-
-/* Remove any styles that might cause wrapping */
-.binary-bits span,
-.binary-bits .rank-bit,
-.binary-bits .suit-bit,
-.binary-bits .bit-group,
-.binary-bits .active-bit {
-  display: inline;
   white-space: pre;
-  vertical-align: baseline;
+  background: rgba(31, 41, 55, 0.5);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  display: block;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Ensure table cells don't wrap */
+.bit-group {
+  display: inline-block;
+  padding: 0 0.1em;
+  letter-spacing: 0.2em;
+  font-family: 'Consolas', 'Monaco', monospace;
+  white-space: pre;
+}
+
+.bit-group + .bit-group {
+  margin-left: 1em;
+}
+
+/* Ensure consistent highlighting */
+.binary-bits span,
+.bit-reference-table td .binary-bits span,
+.bit-table td .binary-bits span {
+  display: inline-block;
+  padding: 0.1em 0.2em;
+  margin: 0 0.1em;
+  border-radius: 0.25rem;
+}
+
+/* Ensure table cells preserve spacing */
+.bit-reference-table td,
+.bit-reference-table th,
 .bit-table td,
 .bit-table th {
-  white-space: nowrap;
+  white-space: pre;
   vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ensure consistent spacing in all binary displays */
+.binary-bits,
+.bit-reference-table td .binary-bits,
+.bit-table td .binary-bits {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  white-space: pre;
+  background: rgba(31, 41, 55, 0.5);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  display: block;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ensure proper spacing between nibbles */
+.bit-group {
+  display: inline-block;
+  margin: 0 0.5em;
+}
+
+.bit-group:first-child {
+  margin-left: 0;
+}
+
+.bit-group:last-child {
+  margin-right: 0;
 }
 
 /* Bit Reference Table Styles */
 .bit-reference-table {
   width: 100%;
-  border-collapse: collapse;
+  table-layout: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 1rem;
 }
 
 .bit-reference-table th,
 .bit-reference-table td {
   padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid theme('colors.gray.700');
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(75, 85, 99, 0.4);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  word-wrap: break-word;
+  word-break: normal;
 }
 
 .bit-reference-table th {
   font-weight: 600;
-  color: theme('colors.gray.300');
+  color: #e5e7eb;
+  background-color: rgba(31, 41, 55, 0.5);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-.bit-reference-table td {
-  font-family: theme('fontFamily.mono');
+.bit-reference-table tr:nth-child(even) {
+  background-color: rgba(31, 41, 55, 0.3);
 }
 
+/* Set specific column widths by content */
+.bit-reference-table th:nth-child(1),
+.bit-reference-table td:nth-child(1) {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.bit-reference-table th:nth-child(2),
 .bit-reference-table td:nth-child(2) {
+  width: auto;
+  white-space: nowrap;
+}
+
+.bit-reference-table th:nth-child(3),
+.bit-reference-table td:nth-child(3) {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.bit-reference-table th:nth-child(4),
+.bit-reference-table td:nth-child(4) {
+  width: auto;
+}
+
+/* Card display in table */
+.card-display {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  background: white;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  min-width: 3rem;
+  color: black;
+}
+
+.card-display.red {
+  color: #ef4444;
+}
+
+/* Binary bits display */
+.binary-bits {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.875rem;
   letter-spacing: 0.1em;
+  white-space: pre;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  background: rgba(17, 24, 39, 0.4);
+  width: 100%;
+  display: block;
+}
+
+.bit-group {
+  display: inline-block;
+  margin: 0 0.5em;
+}
+
+.bit-group:first-child {
+  margin-left: 0;
+}
+
+.bit-group:last-child {
+  margin-right: 0;
+}
+
+/* Table container */
+.table-container {
+  display: none;
+  overflow: visible !important;
+  max-width: 100%;
+  width: 100%;
+  padding: 1rem;
+  background-color: rgba(17, 24, 39, 0.2);
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+}
+
+.table-container:not(.hidden) {
+  display: block;
 }
 
 /* Binary Representation Highlighting */
@@ -1000,16 +1163,13 @@
 }
 
 .bit-group {
-  display: inline-flex;
-  align-items: center;
-  margin: 0 0.25rem;
+  display: inline-block;
+  padding: 0 0.1em;
+  letter-spacing: 0.2em;
 }
 
-.active-bit {
-  color: #34D399;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.bit-group + .bit-group {
+  margin-left: 1em;
 }
 
 /* Step analysis section styling - ensure perfect vertical alignment */
@@ -1176,4 +1336,382 @@ td code {
 /* Ensure table cells with cards are properly centered */
 .bit-table td:first-child {
   text-align: center;
+}
+
+.binary-bits {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.875rem;
+  background: rgba(31, 41, 55, 0.5);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  letter-spacing: 0.1em;
+  white-space: pre;
+  font-variant-numeric: tabular-nums;
+}
+
+.bit-group {
+  display: inline-block;
+  font-family: 'Consolas', 'Monaco', monospace;
+  white-space: pre;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Remove any styles that might affect spacing */
+.binary-bits span,
+.binary-bits .bit-group {
+  white-space: pre;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ensure table cells preserve spacing */
+.bit-table td,
+.bit-table th {
+  white-space: pre;
+  font-variant-numeric: tabular-nums;
+}
+
+.bit-reference-table td .binary-bits {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  white-space: pre;
+  background: rgba(31, 41, 55, 0.5);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  display: block;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+
+.bit-reference-table .bit-group {
+  display: inline-block;
+  padding: 0 0.1em;
+  letter-spacing: 0.2em;
+  font-family: 'Consolas', 'Monaco', monospace;
+  white-space: pre;
+}
+
+.bit-reference-table .bit-group + .bit-group {
+  margin-left: 1em;
+}
+
+/* Ensure consistent spacing in all binary displays */
+.binary-bits,
+.bit-reference-table td .binary-bits,
+.bit-table td .binary-bits {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  white-space: pre;
+  background: rgba(31, 41, 55, 0.5);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  display: block;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+
+.bit-group,
+.bit-reference-table .bit-group,
+.bit-table .bit-group {
+  display: inline-block;
+  padding: 0 0.1em;
+  letter-spacing: 0.2em;
+  font-family: 'Consolas', 'Monaco', monospace;
+  white-space: pre;
+}
+
+/* Ensure consistent highlighting */
+.binary-bits span,
+.bit-reference-table td .binary-bits span,
+.bit-table td .binary-bits span {
+  display: inline-block;
+  padding: 0.1em 0.2em;
+  margin: 0 0.1em;
+  border-radius: 0.25rem;
+}
+
+/* Ensure table cells preserve spacing */
+.bit-reference-table td,
+.bit-reference-table th,
+.bit-table td,
+.bit-table th {
+  white-space: pre;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+.nibble-group {
+  display: inline-block;
+  background-color: rgba(31, 41, 55, 0.75);
+  padding: 0 0.125rem;
+  border-radius: 0.25rem;
+}
+
+.nibble-separator {
+  display: inline-block;
+  width: 1.5rem;
+  text-align: center;
+  color: rgba(156, 163, 175, 0.5);
+  font-weight: bold;
+  user-select: none;
+  font-size: 1rem;
+}
+
+.nibble-spacer {
+  display: inline-block;
+  border-left: 1px solid rgba(100, 116, 139, 0.5);
+  margin: 0 4px;
+  height: 16px;
+  vertical-align: middle;
+}
+
+/* Nibble separator styling - used everywhere */
+.nibble-spacer {
+  display: inline-block;
+  border-left: 1px solid rgba(100, 116, 139, 0.5);
+  margin: 0 4px;
+  height: 16px;
+  vertical-align: middle;
+}
+
+/* Remove redundant styling */
+.bit-group, 
+.binary-group,
+.nibble-group,
+.nibble-separator {
+  display: none;
+}
+
+/* Binary representation */
+.binary-bits pre {
+  margin: 0;
+  padding: 0;
+  font-family: 'Consolas', 'Monaco', monospace;
+  background: transparent;
+  white-space: pre;
+  font-variant-numeric: tabular-nums;
+  overflow: visible;
+}
+
+/* Pre tag overrides to ensure binary numbers display correctly */
+pre.m-0 {
+  margin: 0;
+}
+
+pre.p-0 {
+  padding: 0;
+}
+
+pre.bg-transparent {
+  background: transparent;
+}
+
+.nibble-space {
+  display: inline-block;
+  width: 1.5rem;
+  margin: 0 0.5rem;
+  text-align: center;
+  position: relative;
+}
+
+/* Binary bit representation styling */
+td[class*="py-2"] span.text-green-400,
+td[class*="py-2"] span.text-emerald-400,
+td[class*="py-2"] span.text-amber-400 {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-variant-numeric: tabular-nums;
+  white-space: pre;
+}
+
+/* Fix for explanation cells */
+.explanation-cell,
+.bit-reference-table td:nth-child(4) {
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
+  word-break: normal !important;
+  text-align: left;
+  padding-left: 1rem;
+  min-width: 200px;
+}
+
+/* Better table layout for bit-reference-table */
+.bit-reference-table {
+  width: 100%;
+  table-layout: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 1rem;
+}
+
+/* Ensure all table cells contain their text */
+.bit-reference-table td,
+.bit-reference-table th {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  vertical-align: middle;
+}
+
+/* Set specific column widths by content */
+.bit-reference-table th:nth-child(1),
+.bit-reference-table td:nth-child(1) {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.bit-reference-table th:nth-child(2),
+.bit-reference-table td:nth-child(2) {
+  width: auto;
+  white-space: nowrap;
+}
+
+.bit-reference-table th:nth-child(3),
+.bit-reference-table td:nth-child(3) {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.bit-reference-table th:nth-child(4),
+.bit-reference-table td:nth-child(4) {
+  width: auto;
+}
+
+/* Step Analysis Tables */
+.step-analysis-table {
+  width: 100%;
+  table-layout: fixed !important;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 1rem;
+}
+
+.step-analysis-table th,
+.step-analysis-table td {
+  padding: 0.75rem;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(75, 85, 99, 0.4);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.step-analysis-table th {
+  font-weight: 600;
+  color: #e5e7eb;
+  background-color: rgba(31, 41, 55, 0.5);
+}
+
+.step-analysis-table tr:nth-child(even) {
+  background-color: rgba(31, 41, 55, 0.3);
+}
+
+/* For binary cells in step analysis */
+.binary-cell {
+  white-space: pre !important;
+  overflow-x: auto !important;
+  max-width: 100%;
+}
+
+/* Remove the specific Spades table overrides that are no longer needed */
+#spades .bit-reference-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+#spades .bit-reference-table td:nth-child(2) span {
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+/* Ensure NO scrollbars on ANY tables */
+.table-container {
+  overflow: visible !important;
+  max-width: 100%;
+  width: 100%;
+}
+
+/* Binary representation in tables */
+.bit-reference-table .font-mono,
+.bit-reference-table td:nth-child(2) {
+  font-family: 'Consolas', 'Monaco', monospace;
+  white-space: nowrap; 
+  font-size: 0.85rem;
+  letter-spacing: 0;
+}
+
+/* Make sure binary spans are properly sized */
+.bit-reference-table td:nth-child(2) span {
+  display: inline-block;
+  font-size: 0.85rem;
+  padding: 0 1px;
+}
+
+/* Add breathing room to cells */
+.bit-reference-table th,
+.bit-reference-table td {
+  padding: 0.75rem 0.5rem;
+  vertical-align: middle;
+}
+
+/* Special styles for Table 1 (Spades) - 3-column layout */
+#spades .bit-reference-table th:nth-child(1),
+#spades .bit-reference-table td:nth-child(1) {
+  width: 80px;
+  min-width: 80px;
+  white-space: nowrap;
+}
+
+#spades .bit-reference-table th:nth-child(2),
+#spades .bit-reference-table td:nth-child(2) {
+  width: 45%;
+  white-space: nowrap;
+}
+
+#spades .bit-reference-table th:nth-child(3),
+#spades .bit-reference-table td:nth-child(3) {
+  width: 45%;
+  min-width: 250px;
+  white-space: normal;
+  padding-left: 1.5rem;
+  text-align: left;
+}
+
+/* Standard column widths for all bit-reference-tables to maintain consistency across tabs */
+.bit-reference-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* Card column - consistent across all tables */
+.bit-reference-table th:nth-child(1),
+.bit-reference-table td:nth-child(1) {
+  width: 80px;
+  min-width: 80px;
+}
+
+/* Binary representation column - consistent across all tables */
+.bit-reference-table th:nth-child(2),
+.bit-reference-table td:nth-child(2) {
+  width: 60%;
+}
+
+/* Explanation column - consistent across all tables */
+.bit-reference-table th:nth-child(3),
+.bit-reference-table td:nth-child(3) {
+  width: calc(100% - 60% - 80px); /* Remaining width after card and binary */
+}
+
+/* Remove old column-specific styles for other tables since all tables now have same structure */
+#clubs .bit-reference-table th:nth-child(4),
+#clubs .bit-reference-table td:nth-child(4),
+#hearts .bit-reference-table th:nth-child(4),
+#hearts .bit-reference-table td:nth-child(4),
+#diamonds .bit-reference-table th:nth-child(4),
+#diamonds .bit-reference-table td:nth-child(4) {
+  display: none;
 } 

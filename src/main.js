@@ -47,31 +47,55 @@ const suits = { "♠": 1, "♣": 2, "♥": 4, "♦": 8 };
 const suitSymbols = { 1: "♠", 2: "♣", 4: "♥", 8: "♦" };
 const suitColors = { 1: "black", 2: "black", 4: "red", 8: "red" };
 
-// Helper function to format binary with highlighting
+// Helper function to format binary with highlighting - THIS IS THE SINGLE FUNCTION TO USE EVERYWHERE
+function formatBinary(number, length = 32) {
+  const binary = BigInt(number).toString(2).padStart(length, "0");
+  let result = "";
+
+  // Process each bit adding nibble groups with clear spacing
+  for (let nibbleIndex = 0; nibbleIndex < binary.length / 4; nibbleIndex++) {
+    // Add very clear spacing between nibbles (except first)
+    if (nibbleIndex > 0) {
+      result +=
+        '<span style="display:inline-block; margin:0 3px; color:#6B7280; font-weight:bold">|</span>';
+    }
+
+    // Process each bit in the nibble
+    for (let bitIndex = 0; bitIndex < 4; bitIndex++) {
+      const i = nibbleIndex * 4 + bitIndex;
+      if (i >= binary.length) break;
+
+      const bit = binary[i];
+      const position = binary.length - 1 - i; // Position from right to left
+      const isSetBit = bit === "1";
+
+      // Format the bit with appropriate highlighting
+      if (isSetBit) {
+        // For suit bits (positions 0-3), use amber
+        if (position <= 3) {
+          result += `<span class="text-amber-400 bg-amber-900/30 px-0">${bit}</span>`;
+        } else {
+          // For rank bits (positions 4+), use emerald
+          result += `<span class="text-emerald-400 bg-emerald-900/30 px-0">${bit}</span>`;
+        }
+      } else {
+        // Unset bits are green
+        result += `<span class="text-green-400">${bit}</span>`;
+      }
+    }
+  }
+
+  return result;
+}
+
+// Compatibility wrapper for any existing code that might call formatBinaryWithHighlight
 function formatBinaryWithHighlight(
   number,
   length = 32,
   highlightPositions = []
 ) {
-  const binary = BigInt(number).toString(2).padStart(length, "0");
-  const groups = binary.match(/.{1,4}/g) || [];
-
-  return groups
-    .map((group, groupIndex) => {
-      const bits = group
-        .split("")
-        .map((bit, bitIndex) => {
-          const position = groupIndex * 4 + bitIndex;
-          const isSetBit = bit === "1";
-          if (isSetBit || highlightPositions.includes(position)) {
-            return `<span class="active-bit">${bit}</span>`;
-          }
-          return bit;
-        })
-        .join("");
-      return `<span class="bit-group">${bits}</span>`;
-    })
-    .join(" ");
+  // Simply delegate to our unified function
+  return formatBinary(number, length);
 }
 
 // Function to generate bit reference tables
@@ -92,6 +116,45 @@ function generateBitReferenceTables() {
     }
   }
 
+  // Add explanation div BEFORE the tabs
+  const explanationDiv = document.createElement("div");
+  explanationDiv.className = "mb-6 p-4 bg-gray-900 rounded-lg text-gray-300";
+  explanationDiv.innerHTML = `
+    <p class="mb-2"><strong>Understanding the 32-bit Binary Representation:</strong></p>
+    <ul class="list-disc pl-6 space-y-2">
+      <li>The full 32-bit number is divided into 8 groups of 4 bits (called <strong>nibbles</strong>) for readability, with spaces between each nibble.</li>
+      <li>Each card's <strong class="text-emerald-400">rank</strong> sets a single bit in positions 2-14:
+        <ul class="list-none mt-2 space-y-1 font-mono">
+          <li>• When a bit is set (1), it's shown with <span class="text-emerald-400 bg-emerald-900/30 px-1">emerald shading</span></li>
+          <li>• Example: Ace sets bit 14, King sets bit 13, etc.</li>
+          <li>• Only one rank bit is set per card</li>
+        </ul>
+      </li>
+      <li>Each card's <strong class="text-amber-400">suit</strong> is encoded in the rightmost nibble (bits 0-3):
+        <ul class="list-none mt-2 space-y-1 font-mono">
+          <li>• When a bit is set (1), it's shown with <span class="text-amber-400 bg-amber-900/30 px-1">amber shading</span></li>
+          <li>• Bit 0: Spades (♠)</li>
+          <li>• Bit 1: Clubs (♣)</li>
+          <li>• Bit 2: Hearts (♥)</li>
+          <li>• Bit 3: Diamonds (♦)</li>
+          <li>• Only one suit bit is set per card</li>
+        </ul>
+      </li>
+      <li>
+        <span class="mb-2">Reading the 32-bit number:</span>
+        <ul class="list-none mt-2 space-y-1 font-mono">
+          <li>• Full format: <code>0000 0000 0000 0000 0000 0000 0000 0000</code></li>
+          <li>• Most significant bits (MSB) are on the left</li>
+          <li>• Least significant bits (LSB) are on the right</li>
+          <li>• Bit positions increase right-to-left (0-31)</li>
+          <li class="mt-4">• <span class="text-emerald-400 bg-emerald-900/30 px-1">Emerald shading</span> = Set rank bit (single bit in positions 2-14)</li>
+          <li>• <span class="text-amber-400 bg-amber-900/30 px-1">Amber shading</span> = Set suit bit (single bit in positions 0-3)</li>
+        </ul>
+      </li>
+    </ul>
+  `;
+  tabContainer.appendChild(explanationDiv);
+
   // Create tab navigation
   const tabNav = document.createElement("div");
   tabNav.className = "tab-nav";
@@ -105,7 +168,7 @@ function generateBitReferenceTables() {
   };
 
   // Create tab buttons
-  Object.entries(suitConfigs).forEach(([suit, config]) => {
+  Object.entries(suitConfigs).forEach(([suit, config], tabIndex) => {
     const tabButton = document.createElement("button");
     tabButton.id = `tab-${config.id}`;
     tabButton.className = `tab-btn ${config.isRed ? "text-red-500" : ""}`;
@@ -118,96 +181,8 @@ function generateBitReferenceTables() {
     tabNav.appendChild(tabButton);
   });
 
-  // Add explanation div before the tables
-  const explanationDiv = document.createElement("div");
-  explanationDiv.className = "mb-6 p-4 bg-gray-900 rounded-lg text-gray-300";
-  explanationDiv.innerHTML = `
-    <p class="mb-2"><strong>How bits are set:</strong></p>
-    <ul class="list-disc pl-6 space-y-2">
-      <li>Each card's <strong class="text-emerald-400">rank</strong> determines which bit to set (2-14)</li>
-      <li>
-        <span class="mb-2">Binary numbers are shown in groups of 4 bits for readability:</span>
-        <ul class="list-none mt-2 space-y-1 font-mono">
-          <li class="mb-2">• Reading left to right: <span class="text-emerald-400">0000 0000 0000 0000 0000 0000 0000 0000</span></li>
-          <li>• Most significant bits (MSB) are on the left</li>
-          <li>• Least significant bits (LSB) are on the right</li>
-          <li>• Position numbers increase right-to-left (0-31)</li>
-        </ul>
-      </li>
-      <li>
-        Each card's <strong class="text-emerald-400">suit</strong> is encoded in the rightmost (least significant) 4 bits:
-        <div class="mt-2 font-mono">
-          <div class="text-gray-500 text-xs mb-2" style="letter-spacing: 0.5em">Bit position (31-0):</div>
-          <div class="text-gray-500 text-xs mb-2" style="letter-spacing: 0.5em">31 30 29 28  27 26 25 24  23 22 21 20  19 18 17 16  15 14 13 12  11 10 09 08  07 06 05 04  03 02 01 00</div>
-          <div class="flex flex-col space-y-2">
-            <div class="flex items-center">
-              <span class="w-24">♠ Spades = 1</span>
-              <span class="text-emerald-400" style="letter-spacing: 0.5em">0000      0000      0000      0000      0000      0000      0000      <span class="bg-amber-900/80 px-1">000<span class="text-amber-400">1</span></span></span>
-            </div>
-            <div class="flex items-center">
-              <span class="w-24">♣ Clubs = 2</span>
-              <span class="text-emerald-400" style="letter-spacing: 0.5em">0000      0000      0000      0000      0000      0000      0000      <span class="bg-amber-900/80 px-1">00<span class="text-amber-400">1</span>0</span></span>
-            </div>
-            <div class="flex items-center text-red-600">
-              <span class="w-24">♥ Hearts = 4</span>
-              <span class="text-emerald-400" style="letter-spacing: 0.5em">0000      0000      0000      0000      0000      0000      0000      <span class="bg-amber-900/80 px-1">0<span class="text-amber-400">1</span>00</span></span>
-            </div>
-            <div class="flex items-center text-red-600">
-              <span class="w-24">♦ Diamonds = 8</span>
-              <span class="text-emerald-400" style="letter-spacing: 0.5em">0000      0000      0000      0000      0000      0000      0000      <span class="bg-amber-900/80 px-1"><span class="text-amber-400">1</span>000</span></span>
-            </div>
-          </div>
-        </div>
-      </li>
-      <li class="mt-4">
-        <strong>Detailed Example: Ace of Hearts (A♥)</strong>
-        <div class="mt-2 space-y-4 bg-gray-800 p-4 rounded-lg">
-          <div>
-            <div class="text-sm text-gray-400 mb-1">1. The Ace (rank 14) sets its bit:</div>
-            <div class="font-mono">
-              <div class="text-gray-500 text-xs mb-1" style="letter-spacing: 0.5em">Bit position (31-0):</div>
-              <div class="text-gray-500 text-xs mb-2" style="letter-spacing: 0.5em">31 30 29 28  27 26 25 24  23 22 21 20  19 18 17 16  15 14 13 12  11 10 09 08  07 06 05 04  03 02 01 00</div>
-              <div class="text-emerald-400" style="letter-spacing: 0.5em">0000      0000      0000      0000      <span class="bg-blue-900 px-1">0<span class="text-amber-400">1</span>00</span>      0000      0000      0000</div>
-              <div class="text-gray-400 text-sm mt-1">Bit 14 set to 1 for Ace (highlighted in blue)</div>
-            </div>
-          </div>
-
-          <div>
-            <div class="text-sm text-gray-400 mb-1">2. The Hearts suit (value 4) sets its bit:</div>
-            <div class="font-mono">
-              <div class="text-gray-500 text-xs mb-1" style="letter-spacing: 0.5em">Bit position (31-0):</div>
-              <div class="text-gray-500 text-xs mb-2" style="letter-spacing: 0.5em">31 30 29 28  27 26 25 24  23 22 21 20  19 18 17 16  15 14 13 12  11 10 09 08  07 06 05 04  03 02 01 00</div>
-              <div class="text-emerald-400" style="letter-spacing: 0.5em">0000      0000      0000      0000      0000      0000      0000      <span class="bg-amber-900 px-1">0<span class="text-amber-400">1</span>00</span></div>
-              <div class="text-gray-400 text-sm mt-1">Bit 2 set to 1 for Hearts (highlighted in amber)</div>
-            </div>
-          </div>
-
-          <div>
-            <div class="text-sm text-gray-400 mb-1">3. Combined representation (both rank and suit):</div>
-            <div class="font-mono">
-              <div class="text-gray-500 text-xs mb-1" style="letter-spacing: 0.5em">Bit position (31-0):</div>
-              <div class="text-gray-500 text-xs mb-2" style="letter-spacing: 0.5em">31 30 29 28  27 26 25 24  23 22 21 20  19 18 17 16  15 14 13 12  11 10 09 08  07 06 05 04  03 02 01 00</div>
-              <div class="text-emerald-400" style="letter-spacing: 0.5em">0000      0000      0000      0000      <span class="bg-blue-900 px-1">0<span class="text-amber-400">1</span>00</span>      0000      0000      <span class="bg-amber-900 px-1">0<span class="text-amber-400">1</span>00</span></div>
-              <div class="text-gray-400 text-sm mt-1">Ace (blue highlight) and Hearts (amber highlight) bits set to 1</div>
-            </div>
-          </div>
-
-          <div class="text-sm text-gray-300 mt-4">
-            <strong>What this means:</strong>
-            <ul class="list-disc ml-4 mt-2 space-y-2">
-              <li>The Ace is represented by setting bit 14 to 1 (counting from right, position 14)</li>
-              <li>Hearts is represented by setting bit 2 to 1 (in the rightmost 4 bits)</li>
-              <li>All other bits remain 0</li>
-              <li>This creates a unique pattern that identifies an Ace of Hearts</li>
-            </ul>
-          </div>
-        </div>
-      </li>
-    </ul>
-  `;
-
   // Create tables for each suit
-  Object.entries(suitConfigs).forEach(([suit, config]) => {
+  Object.entries(suitConfigs).forEach(([suit, config], tabIndex) => {
     console.log(`Generating table for ${suit}...`);
 
     // Create table container if it doesn't exist
@@ -220,19 +195,37 @@ function generateBitReferenceTables() {
       tabContainer.appendChild(tableContainer);
     }
 
-    // Create table structure
+    // Create table structure with ID number
     const table = document.createElement("table");
     table.className = "bit-reference-table w-full";
 
+    // Add a table number to the top
+    const caption = document.createElement("caption");
+    caption.textContent = `Table ${tabIndex + 1}: ${
+      suit.charAt(0).toUpperCase() + suit.slice(1)
+    }`;
+    caption.className = "text-left text-lg font-bold mb-2 text-gray-300";
+    table.appendChild(caption);
+
     // Add table header
     const thead = document.createElement("thead");
-    thead.innerHTML = `
-      <tr>
-        <th>Card</th>
-        <th>Binary Pattern</th>
-        <th>Hex</th>
-      </tr>
-    `;
+    const headerRow = document.createElement("tr");
+
+    // Create header cells - remove Hex column from all tables
+    const headers = [
+      { text: "Card", className: "w-24 text-left" },
+      { text: "Binary Representation (MSB → LSB)", className: "text-left" },
+      { text: "Explanation", className: "text-left" },
+    ];
+
+    headers.forEach((header) => {
+      const th = document.createElement("th");
+      th.className = header.className;
+      th.textContent = header.text;
+      headerRow.appendChild(th);
+    });
+
+    thead.appendChild(headerRow);
     table.appendChild(thead);
 
     // Create table body
@@ -252,22 +245,51 @@ function generateBitReferenceTables() {
       { name: "3", value: 3 },
       { name: "2", value: 2 },
     ];
+
     ranks.forEach((rank) => {
       const rankBit = 1n << BigInt(rank.value);
       const suitBit = BigInt(config.bitValue);
       const combinedValue = rankBit | suitBit;
 
       const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td class="card-display ${config.isRed ? "red" : ""}">${rank.name}${
-        config.symbol
-      }</td>
-        <td class="binary-bits">${formatBinaryWithHighlight(combinedValue, 32, [
-          rank.value,
-          Math.log2(config.bitValue),
-        ])}</td>
-        <td>0x${combinedValue.toString(16).toUpperCase().padStart(4, "0")}</td>
-      `;
+
+      // Create card cell
+      const cardCell = document.createElement("td");
+      cardCell.className = "py-2";
+      const cardSpan = document.createElement("span");
+      cardSpan.className = `card-display ${config.isRed ? "red" : ""}`;
+      cardSpan.textContent = `${rank.name}${config.symbol}`;
+      cardCell.appendChild(cardSpan);
+
+      // Create binary representation cell
+      const binaryCell = document.createElement("td");
+      binaryCell.className = "py-2 font-mono";
+      binaryCell.innerHTML = formatBinary(combinedValue, 32);
+
+      // Create explanation cell
+      const explainCell = document.createElement("td");
+      explainCell.className = "py-2 text-gray-300 explanation-cell";
+      explainCell.style.maxWidth = "400px";
+      explainCell.style.whiteSpace = "normal";
+      explainCell.style.wordWrap = "break-word";
+      explainCell.style.overflowWrap = "break-word";
+
+      // Simplified explanation text to prevent overflow
+      const rankName = rank.name === "T" ? "10" : rank.name;
+      const suitName = Object.keys(suitConfigs).find(
+        (key) => suitConfigs[key].bitValue === config.bitValue
+      );
+      const suitNameCapitalized =
+        suitName.charAt(0).toUpperCase() + suitName.slice(1);
+      explainCell.innerHTML = `The ${rankName} of ${suitNameCapitalized} sets: Bit ${
+        rank.value
+      } for rank, Bit ${Math.log2(config.bitValue)} for suit.`;
+
+      // Append cells to row in the right order
+      tr.appendChild(cardCell);
+      tr.appendChild(binaryCell);
+      tr.appendChild(explainCell);
+
       tbody.appendChild(tr);
     });
 
@@ -276,6 +298,9 @@ function generateBitReferenceTables() {
   });
 
   console.log("Bit reference tables generation complete");
+
+  // Add this function after the tables are generated
+  initializeTabs();
 }
 
 // Function to handle tab switching
@@ -314,46 +339,65 @@ function switchTab(tabButton) {
 // Initialize tabs
 function initializeTabs() {
   console.log("Initializing tabs...");
-  const tabButtons = document.querySelectorAll('[role="tab"]');
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const tabContainers = document.querySelectorAll(".table-container");
 
   if (tabButtons.length === 0) {
     console.error("No tab buttons found");
     return;
   }
 
-  // Add click handlers to buttons
+  console.log(
+    `Found ${tabButtons.length} tab buttons and ${tabContainers.length} tab containers`
+  );
+
+  // Set the first tab as active by default
+  tabButtons[0].classList.add("active");
+  if (tabContainers[0]) {
+    tabContainers[0].classList.remove("hidden");
+  }
+
+  // Add click event listeners to all tab buttons
   tabButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      console.log("Tab button clicked:", button.id);
-      switchTab(button);
+      // Remove active class from all buttons
+      tabButtons.forEach((btn) => btn.classList.remove("active"));
+
+      // Add active class to the clicked button
+      button.classList.add("active");
+
+      // Hide all tab containers
+      tabContainers.forEach((container) => container.classList.add("hidden"));
+
+      // Show the corresponding tab container
+      const tabId = button.getAttribute("aria-controls");
+      const tabContainer = document.getElementById(tabId);
+      if (tabContainer) {
+        tabContainer.classList.remove("hidden");
+      }
     });
   });
-
-  // Set initial active tab (spades)
-  const spadesTab = document.getElementById("tab-spades");
-  if (spadesTab) {
-    console.log("Setting initial active tab to Spades");
-    switchTab(spadesTab);
-  } else {
-    console.log("Spades tab not found, defaulting to first tab");
-    switchTab(tabButtons[0]);
-  }
 }
 
 // Initialize when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM loaded, initializing application...");
 
-  // Generate bit reference tables first
+  // Generate the bit reference tables for different suits
   generateBitReferenceTables();
 
-  // Then initialize tabs
-  initializeTabs();
+  // Make sure Spades tab is selected by default
+  const spadesTab = document.getElementById("tab-spades");
+  if (spadesTab) {
+    spadesTab.click();
+  }
 
-  // Add deal button handler
+  // Add event listener to the deal button
   const dealButton = document.getElementById("dealButton");
   if (dealButton) {
     dealButton.addEventListener("click", dealHand);
+  } else {
+    console.warn("Deal button not found");
   }
 
   // Ensure step analysis is hidden initially
@@ -365,15 +409,10 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("Application initialization complete");
 });
 
-// Function to format binary number into groups of 4 bits with highlighting
-function formatBinary(num, size = 32) {
-  return formatBinaryWithHighlight(num, size, []);
-}
-
 // Function to format a single bit position with highlighting
 function formatSingleBitField(position) {
   const value = 1n << BigInt(position);
-  return formatBinaryWithHighlight(value, 32, [position]);
+  return formatBinary(value, 32);
 }
 
 // Add this function before updateStepAnalysis
@@ -405,8 +444,69 @@ function updateStepAnalysis(hand) {
   const lowestBit = combinedValue & -combinedValue;
   const normalizedPattern = lowestBit ? combinedValue / lowestBit : 0n;
 
+  // Determine straights and flushes
   const isStraight = normalizedPattern === 31n || combinedValue === 0x403cn;
   const isFlush = hand.cards.every((card) => card.suit === hand.cards[0].suit);
+  const isAceLowStraight = combinedValue === 0x403cn;
+
+  // Use the result from rankPokerHand if available
+  let handType = "High Card";
+  let handExplanation = "";
+
+  if (hand.result) {
+    // Use the result directly from rankPokerHand
+    handType = hand.result.handName;
+
+    // Generate explanation based on hand type
+    if (handType === "Royal Flush") {
+      handExplanation =
+        "A 10-J-Q-K-A sequence of the same suit - the best possible hand!";
+    } else if (handType === "Straight Flush") {
+      handExplanation = "Five consecutive cards of the same suit.";
+    } else if (handType === "4 of a Kind") {
+      handExplanation = "Four cards of the same rank.";
+    } else if (handType === "Full House") {
+      handExplanation =
+        "Three cards of one rank and two cards of another rank.";
+    } else if (handType === "Flush") {
+      handExplanation = "Five cards of the same suit, not in sequence.";
+    } else if (handType === "Straight") {
+      handExplanation = isAceLowStraight
+        ? "Five consecutive cards (A-2-3-4-5) of different suits."
+        : "Five consecutive cards of different suits.";
+    } else if (handType === "3 of a Kind") {
+      handExplanation = "Three cards of the same rank.";
+    } else if (handType === "2 Pair") {
+      handExplanation = "Two different pairs of cards of the same rank.";
+    } else if (handType === "1 Pair") {
+      handExplanation = "Two cards of the same rank.";
+    } else {
+      handExplanation = "Five unmatched cards, evaluated by highest card.";
+    }
+  } else {
+    // Fallback to basic detection if result is not available
+    if (isStraight && isFlush) {
+      if ((combinedValue & 0x7c00n) === 0x7c00n) {
+        // A, K, Q, J, 10
+        handType = "Royal Flush";
+        handExplanation =
+          "A 10-J-Q-K-A sequence of the same suit - the best possible hand!";
+      } else {
+        handType = "Straight Flush";
+        handExplanation = "Five consecutive cards of the same suit.";
+      }
+    } else if (isStraight) {
+      handType = "Straight";
+      handExplanation = isAceLowStraight
+        ? "Five consecutive cards (A-2-3-4-5) of different suits."
+        : "Five consecutive cards of different suits.";
+    } else if (isFlush) {
+      handType = "Flush";
+      handExplanation = "Five cards of the same suit, not in sequence.";
+    } else {
+      handExplanation = "Five unmatched cards, evaluated by highest card.";
+    }
+  }
 
   stepAnalysis.classList.remove("hidden");
 
@@ -416,16 +516,16 @@ function updateStepAnalysis(hand) {
       <h3 class="text-xl font-semibold mb-4">Step-by-Step Analysis</h3>
       
       <div class="calculation-step">
-        <div class="font-semibold mb-2">Step 1: Individual Card Patterns</div>
+        <div class="font-semibold mb-2">SECTION 1: Individual Card Patterns</div>
         <p class="text-gray-300 mb-4">
           Each card in the hand is converted into a unique 32-bit binary pattern. The pattern combines:
           <ul class="list-disc ml-6 mb-4 text-gray-300">
-            <li>The card's rank (2-14) sets a single bit in positions 2-14</li>
-            <li>The card's suit (♠♣♥♦) sets a single bit in the rightmost 4 positions</li>
-            <li>This creates a unique binary fingerprint for each card</li>
+            <li>The card's rank (2-14) sets a single bit in positions 2-14 (<span class="text-emerald-400 bg-emerald-900/30 px-1">emerald shading</span>)</li>
+            <li>The card's suit (♠♣♥♦) sets a single bit in the rightmost 4 positions (<span class="text-amber-400 bg-amber-900/30 px-1">amber shading</span>)</li>
+            <li>This creates a unique binary fingerprint for each card, with distinct shading for rank and suit bits</li>
           </ul>
         </p>
-        <table class="w-full text-left">
+        <table class="w-full text-left step-analysis-table">
           <tr>
             <th class="w-32 pr-4">Card</th>
             <th>Binary Pattern</th>
@@ -438,10 +538,9 @@ function updateStepAnalysis(hand) {
               return `
                 <tr>
                   <td class="pr-4">${formatCard(card)}</td>
-                  <td class="font-mono">${formatBinaryWithHighlight(
+                  <td class="font-mono binary-cell">${formatBinary(
                     cardPattern,
-                    32,
-                    [card.rankValue, card.suit < 4 ? card.suit : 2]
+                    32
                   )}</td>
                 </tr>
               `;
@@ -451,53 +550,53 @@ function updateStepAnalysis(hand) {
       </div>
 
       <div class="calculation-step">
-        <div class="font-semibold mb-2">Step 2: Combined Pattern</div>
+        <div class="font-semibold mb-2">SECTION 2: Combined Pattern</div>
         <p class="text-gray-300 mb-4">
           All card patterns are merged using bitwise OR operations. This creates a single 32-bit pattern where:
           <ul class="list-disc ml-6 mb-4 text-gray-300">
-            <li>Each set bit represents a rank present in the hand</li>
+            <li>Each set rank bit (<span class="text-emerald-400 bg-emerald-900/30 px-1">emerald shading</span>) represents a rank present in the hand</li>
+            <li>Each set suit bit (<span class="text-amber-400 bg-amber-900/30 px-1">amber shading</span>) represents the suits present</li>
             <li>Multiple cards of the same rank only set their bit once</li>
-            <li>This pattern is crucial for detecting straights and other patterns</li>
+            <li>The distinct shading helps visualize the rank and suit patterns</li>
           </ul>
         </p>
-        <table class="w-full text-left">
+        <table class="w-full text-left step-analysis-table">
           <tr>
             <th class="w-32 pr-4">Pattern</th>
             <th>Binary Value</th>
           </tr>
           <tr>
             <td class="pr-4">Combined</td>
-            <td class="font-mono">${formatBinaryWithHighlight(
+            <td class="font-mono binary-cell">${formatBinary(
               combinedValue,
-              32,
-              allSetPositions
+              32
             )}</td>
           </tr>
         </table>
       </div>
 
       <div class="calculation-step">
-        <div class="font-semibold mb-2">Step 3: Pattern Analysis</div>
+        <div class="font-semibold mb-2">SECTION 3: Pattern Analysis</div>
         <p class="text-gray-300 mb-4">
           The combined pattern is analyzed to detect specific hand types:
           <ul class="list-disc ml-6 mb-4 text-gray-300">
-            <li>Straight detection: Checks if set bits are consecutive (normalized pattern = 31)</li>
-            <li>Ace-low straight: Special case check (pattern = 0x403c)</li>
-            <li>Flush detection: Verifies all cards share the same suit</li>
-            <li>The normalized pattern helps identify straights by removing gaps</li>
+            <li>Straight detection: Checks if set rank bits (<span class="text-emerald-400 bg-emerald-900/30 px-1">emerald</span>) are consecutive</li>
+            <li>Ace-low straight: Special case check for specific rank pattern</li>
+            <li>Flush detection: Verifies suit bits (<span class="text-amber-400 bg-amber-900/30 px-1">amber</span>) match</li>
+            <li>Other patterns: Analyzes bit groupings to detect pairs, three of a kind, etc.</li>
+            <li>The normalized pattern helps identify straights by removing gaps between set bits</li>
           </ul>
         </p>
-        <table class="w-full text-left">
+        <table class="w-full text-left step-analysis-table">
           <tr>
             <th class="w-32 pr-4">Check</th>
             <th>Result</th>
           </tr>
           <tr>
             <td class="pr-4">Normalized</td>
-            <td class="font-mono">${formatBinaryWithHighlight(
+            <td class="font-mono binary-cell">${formatBinary(
               normalizedPattern,
-              32,
-              allSetPositions
+              32
             )}</td>
           </tr>
           <tr>
@@ -506,7 +605,7 @@ function updateStepAnalysis(hand) {
               isStraight ? "text-emerald-400" : "text-red-500"
             }">${
     isStraight
-      ? `✓ Straight detected${combinedValue === 0x403cn ? " (Ace-low)" : ""}`
+      ? `✓ Straight detected${isAceLowStraight ? " (Ace-low)" : ""}`
       : "✗ Not a straight - bits not consecutive"
   }</td>
           </tr>
@@ -520,46 +619,76 @@ function updateStepAnalysis(hand) {
       : "✗ Not a flush - suits don't match"
   }</td>
           </tr>
+          ${
+            hand.result && hand.result.v
+              ? `
+          <tr>
+            <td class="pr-4">Other Patterns</td>
+            <td class="font-mono">Bit grouping checks for pairs, three of a kind, etc.</td>
+          </tr>`
+              : ""
+          }
         </table>
       </div>
 
       <div class="calculation-step">
-        <div class="font-semibold mb-2">Final Result</div>
+        <div class="font-semibold mb-2">SECTION 4: Final Result</div>
         <p class="text-gray-300 mb-4">
           The final analysis combines all previous calculations to determine the hand rank:
           <ul class="list-disc ml-6 mb-4 text-gray-300">
-            <li>Combined pattern shows all ranks present in the hand</li>
-            <li>Normalized pattern helps identify special sequences</li>
-            <li>Hex value provides a compact representation of the hand</li>
-            <li>These values together determine the final poker hand ranking</li>
+            <li>Combined pattern shows all ranks (<span class="text-emerald-400 bg-emerald-900/30 px-1">emerald</span>) and suits (<span class="text-amber-400 bg-amber-900/30 px-1">amber</span>) present</li>
+            <li>Normalized pattern helps identify special sequences in the rank bits</li>
+            <li>Bit grouping analysis detects pairs, three of a kind, full house, etc.</li>
+            <li>The shaded bits visually confirm the hand's composition</li>
           </ul>
         </p>
-        <table class="w-full text-left">
+        
+        <div class="bg-gray-800 p-4 mb-4 rounded-lg border border-emerald-500">
+          <h4 class="text-xl font-bold text-center text-emerald-400 mb-2">Hand Analysis Result: ${handType}</h4>
+          <p class="text-gray-300 text-center">${handExplanation}</p>
+        </div>
+        
+        <table class="w-full text-left step-analysis-table">
           <tr>
             <th class="w-32 pr-4">Value</th>
             <th>Pattern</th>
           </tr>
           <tr>
             <td class="pr-4">Combined</td>
-            <td class="font-mono">${formatBinaryWithHighlight(
+            <td class="font-mono binary-cell">${formatBinary(
               combinedValue,
-              32,
-              allSetPositions
+              32
             )}</td>
           </tr>
           <tr>
             <td class="pr-4">Normalized</td>
-            <td class="font-mono">${formatBinaryWithHighlight(
+            <td class="font-mono binary-cell">${formatBinary(
               normalizedPattern,
-              32,
-              allSetPositions
+              32
             )}</td>
           </tr>
           <tr>
             <td class="pr-4">Hex Value</td>
             <td class="font-mono">0x${combinedValue
               .toString(16)
+              .toUpperCase()
               .padStart(8, "0")}</td>
+          </tr>
+          ${
+            hand.result && hand.result.v
+              ? `
+          <tr>
+            <td class="pr-4">v Value</td>
+            <td class="font-mono">0x${BigInt(hand.result.v)
+              .toString(16)
+              .toUpperCase()
+              .padStart(8, "0")}</td>
+          </tr>`
+              : ""
+          }
+          <tr>
+            <td class="pr-4">Hand Type</td>
+            <td class="font-bold text-emerald-400">${handType}</td>
           </tr>
         </table>
       </div>
@@ -732,7 +861,9 @@ function dealHand() {
   });
 
   try {
+    // Get the full poker hand analysis from rankPokerHand
     const result = rankPokerHand(cardRanksInput, cardSuitsInput);
+
     resultDisplay.textContent = `Result: ${result.handName}${
       result.isAceLowStraight ? " (Ace low)" : ""
     }`;
@@ -740,8 +871,10 @@ function dealHand() {
       "text-center font-semibold text-xl text-emerald-400";
 
     // Update the step analysis with the hand and results
+    // Pass the full result to ensure all analysis steps match
     updateStepAnalysis({
       cards: hand.map((card) => ({ ...card, rankValue: card.rank })),
+      result: result, // Pass the full result from rankPokerHand
     });
   } catch (error) {
     console.error("Error analyzing hand:", error);

@@ -180,7 +180,7 @@ The application will be available at `http://localhost:8000` (or whatever port y
 
 - Node.js 16.x or higher
 - NPM 7.x or higher, Yarn 1.22.x or higher, or PNPM 6.x or higher
-- Modern web browser with JavaScript enabled
+
 
 ## How It Works
 
