@@ -406,6 +406,19 @@ document.addEventListener("DOMContentLoaded", () => {
     stepAnalysis.classList.add("hidden");
   }
 
+  // Make sure initial placeholder cards are visible and properly styled
+  const handDisplay = document.getElementById("handDisplay");
+  if (handDisplay && handDisplay.children.length === 0) {
+    // Add 5 placeholder cards if none exist
+    for (let i = 0; i < 5; i++) {
+      const cardDiv = document.createElement("div");
+      cardDiv.className = "card placeholder";
+      cardDiv.setAttribute("role", "img");
+      cardDiv.setAttribute("aria-label", "Card back");
+      handDisplay.appendChild(cardDiv);
+    }
+  }
+
   console.log("Application initialization complete");
 });
 
@@ -856,29 +869,54 @@ function dealHand() {
   const resultDisplay = document.getElementById("resultDisplay");
   const stepAnalysis = document.getElementById("stepAnalysis");
 
-  // Clear previous hand and hide step analysis
-  handDisplay.innerHTML = "";
+  // Clear any previous result
+  resultDisplay.textContent = "";
+  resultDisplay.className = "text-center font-semibold text-xl min-h-[2rem]";
   stepAnalysis.classList.add("hidden");
 
-  // Display new cards
-  hand.forEach((card) => {
+  // Clear previous cards
+  handDisplay.innerHTML = "";
+
+  // Display new cards with a sequential deal animation
+  hand.forEach((card, index) => {
     const cardDiv = document.createElement("div");
     const rankDisplay = rankMap[card.rank];
     const suitSymbolDisplay = suitSymbols[card.suit];
     const isRed = suitColors[card.suit] === "red";
 
-    cardDiv.className = "card";
+    // Start with a placeholder (face down) and add deal animation class
+    cardDiv.className = "card placeholder";
     cardDiv.setAttribute("role", "img");
     cardDiv.setAttribute(
       "aria-label",
       `${rankDisplay} of ${suitSymbolDisplay}`
     );
-    cardDiv.innerHTML = `
-      <span class="rank ${isRed ? "red" : "black"}">${rankDisplay}</span>
-      <span class="suit ${isRed ? "red" : "black"}">${suitSymbolDisplay}</span>
-    `;
+
     handDisplay.appendChild(cardDiv);
+
+    // Reveal each card sequentially with a slight delay
+    setTimeout(() => {
+      // Replace placeholder with the actual card
+      cardDiv.className = "card deal-animation";
+      cardDiv.innerHTML = `
+        <span class="rank ${isRed ? "red" : "black"}">${rankDisplay}</span>
+        <span class="suit ${
+          isRed ? "red" : "black"
+        }">${suitSymbolDisplay}</span>
+      `;
+
+      // After the last card is dealt, show the result
+      if (index === hand.length - 1) {
+        setTimeout(showResult, 500, cardRanksInput, cardSuitsInput, hand);
+      }
+    }, 200 * (index + 1)); // Each card reveals after a 200ms delay from the previous one
   });
+}
+
+// Function to show the analysis result after cards are dealt
+function showResult(cardRanksInput, cardSuitsInput, hand) {
+  const resultDisplay = document.getElementById("resultDisplay");
+  const stepAnalysis = document.getElementById("stepAnalysis");
 
   try {
     // Get the full poker hand analysis from rankPokerHand
