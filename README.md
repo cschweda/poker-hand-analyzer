@@ -236,6 +236,30 @@ The analyzer uses several bit manipulation techniques:
 - Parallel counting using modulo with Mersenne numbers
 - Special case handling for Ace-low straights
 
+### Understanding Bit Shifts
+
+When you see code like `s = 1<<cs[0]|1<<cs[1]`, here's what it means in plain English:
+
+1. **Left Shift (`1<<cs[0]`)**:
+
+   - Start with the number 1 (binary: 00000001)
+   - Shift it left by cs[0] positions
+   - This creates a binary number with a single 1 at position cs[0]
+   - Example: If cs[0] is 5, you get 00100000 (decimal 32)
+
+2. **Combining with OR (`|`)**:
+   - The `|` symbol combines binary numbers, setting a bit to 1 if it's 1 in either number
+   - In `1<<cs[0]|1<<cs[1]`, we're creating a binary number with 1s at positions cs[0] and cs[1]
+   - Example: If cs[0]=5 and cs[1]=7, you get 10100000 (1s at positions 5 and 7)
+
+In the poker context, this efficiently creates a "fingerprint" of card ranks. The line:
+
+```javascript
+s = (1 << cs[0]) | (1 << cs[1]) | (1 << cs[2]) | (1 << cs[3]) | (1 << cs[4]);
+```
+
+Creates a single 32-bit integer where each 1 represents a card rank present in the hand.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
