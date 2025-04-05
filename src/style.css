@@ -662,7 +662,7 @@
   body {
     @apply bg-gray-900 text-gray-200 font-sans;
     padding: 2rem;
-    max-width: 1200px;
+    max-width: 95%;
     margin: 0 auto;
   }
 
@@ -800,12 +800,12 @@
 
 /* Container styles */
 .container {
-  width: 100%;
+  width: 95%;
   max-width: none;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 .tab-container {
@@ -887,50 +887,14 @@
   }
 }
 
-/* Technical Term Tooltips */
-.tech-term {
-  position: relative;
-  display: inline-block;
-  color: theme('colors.blue.400');
-  border-bottom: 1px dotted theme('colors.blue.400');
-  cursor: help;
-}
-
-.tooltip {
-  visibility: hidden;
-  position: absolute;
-  z-index: 100;
-  bottom: 125%;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 200px;
-  max-width: 300px;
-  padding: 0.75rem 1rem;
-  background-color: theme('colors.gray.900');
-  color: theme('colors.gray.100');
-  border: 1px solid theme('colors.gray.700');
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  opacity: 0;
-  transition: opacity 0.2s, visibility 0.2s;
-}
-
-.tooltip::before {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 5px;
-  border-style: solid;
-  border-color: theme('colors.gray.700') transparent transparent transparent;
-}
-
+/* Smart positioning classes */
+/* For tooltips that need to appear below elements */
 .tech-term:hover .tooltip {
   visibility: visible;
   opacity: 1;
 }
 
+/* Tooltip content styling */
 .tooltip-title {
   color: theme('colors.blue.400');
   font-weight: 600;
@@ -948,6 +912,79 @@
   line-height: 1.4;
   display: block;
   padding-top: 0.25rem;
+}
+
+/* CSS-based smart positioning for tooltips */
+.tech-term {
+  position: relative;
+}
+
+/* Default tooltip position (above) */
+.tooltip {
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Fallback positions using media queries for small screens */
+@media (max-height: 400px) {
+  .tooltip {
+    bottom: auto;
+    top: 125%;
+  }
+  
+  .tooltip::before {
+    bottom: auto;
+    top: -5px;
+    border-color: transparent transparent theme('colors.gray.700') transparent;
+  }
+}
+
+/* Position indicators */
+.tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: theme('colors.gray.700') transparent transparent transparent;
+}
+
+/* Alternative positions that can be applied with JavaScript */
+.tooltip.position-bottom {
+  bottom: auto;
+  top: 125%;
+}
+
+.tooltip.position-bottom::before {
+  bottom: auto;
+  top: -5px;
+  border-color: transparent transparent theme('colors.gray.700') transparent;
+}
+
+.tooltip.position-left {
+  left: 0;
+  transform: translateX(0);
+}
+
+.tooltip.position-right {
+  left: auto;
+  right: 0;
+  transform: translateX(0);
+}
+
+.tooltip.position-left::before,
+.tooltip.position-right::before {
+  left: 10px;
+  transform: translateX(0);
+}
+
+.tooltip.position-right::before {
+  left: auto;
+  right: 10px;
 }
 
 /* Suit Bits Reference Table */
@@ -1759,4 +1796,66 @@ td[class*="py-2"] span.text-amber-400 {
   body {
     padding: 1rem;
   }
+}
+
+/* Smart tooltip positioning using CSS */
+/* When tooltip is too close to top edge, show below instead */
+.tech-term:has(.tooltip:hover) {
+  position: relative;
+}
+
+/* Make this work with JavaScript for more reliable positioning */
+@media (max-height: 400px), (max-width: 500px) {
+  .tooltip {
+    bottom: auto;
+    top: 125%;
+  }
+  
+  .tooltip::before {
+    bottom: auto;
+    top: -5px;
+    border-color: transparent transparent theme('colors.gray.700') transparent;
+  }
+}
+
+/* Technical Term Tooltips */
+.tech-term {
+  position: relative;
+  display: inline-block;
+  color: theme('colors.blue.400');
+  border-bottom: 1px dotted theme('colors.blue.400');
+  cursor: help;
+}
+
+/* Create a new tooltip container with improved positioning logic */
+.tooltip {
+  visibility: hidden;
+  position: absolute;
+  z-index: 100;
+  /* Default position is above and centered */
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 220px;
+  max-width: 320px;
+  padding: 0.75rem 1rem;
+  background-color: theme('colors.gray.900');
+  color: theme('colors.gray.100');
+  border: 1px solid theme('colors.gray.700');
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+
+/* Default pointer for tooltip (pointing down) */
+.tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: theme('colors.gray.700') transparent transparent transparent;
 } 

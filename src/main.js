@@ -903,3 +903,61 @@ function dealHand() {
     stepAnalysis.classList.add("hidden");
   }
 }
+
+// Smart tooltip positioning
+function initTooltips() {
+  const techTerms = document.querySelectorAll(".tech-term");
+
+  techTerms.forEach((term) => {
+    const tooltip = term.querySelector(".tooltip");
+    if (tooltip) {
+      term.addEventListener("mouseenter", () => {
+        // Get dimensions and positions
+        const termRect = term.getBoundingClientRect();
+        const tooltipRect = tooltip.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+
+        // Reset positioning classes
+        tooltip.classList.remove(
+          "position-bottom",
+          "position-left",
+          "position-right"
+        );
+
+        // Check vertical position
+        const tooltipHeight = tooltipRect.height;
+        const spaceAbove = termRect.top;
+        const spaceBelow = viewportHeight - termRect.bottom;
+
+        if (
+          spaceAbove < tooltipHeight + 10 &&
+          spaceBelow >= tooltipHeight + 10
+        ) {
+          // Place below
+          tooltip.classList.add("position-bottom");
+        }
+
+        // Check horizontal position
+        setTimeout(() => {
+          const updatedTooltipRect = tooltip.getBoundingClientRect();
+
+          if (updatedTooltipRect.left < 10) {
+            // Too close to left edge
+            tooltip.classList.add("position-left");
+          } else if (updatedTooltipRect.right > viewportWidth - 10) {
+            // Too close to right edge
+            tooltip.classList.add("position-right");
+          }
+        }, 0);
+      });
+    }
+  });
+}
+
+// Initialize on page load and whenever DOM might change
+document.addEventListener("DOMContentLoaded", initTooltips);
+window.addEventListener("resize", initTooltips);
+
+// Call now for any already loaded content
+setTimeout(initTooltips, 500);
