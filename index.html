@@ -293,133 +293,9 @@ function rankPokerHand(cs, ss) {
       <section class="content-section">
         <h2>Bit Field Explanation</h2>
         <div class="bit-field-explanation mb-6">
-          <p class="mb-4">
-            Let's understand how the poker hand analyzer uses bit fields by
-            looking at an example hand:
+          <p class="text-center text-xl text-gray-400 py-8">
+            Under Construction
           </p>
-
-          <div class="example-hand bg-gray-900 p-4 rounded-lg mb-6">
-            <h3 class="text-lg font-semibold mb-2">Example Hand:</h3>
-            <div class="flex gap-2 mb-4">
-              <div class="card-display">A♠</div>
-              <div class="card-display">K♠</div>
-              <div class="card-display">Q♠</div>
-              <div class="card-display">J♠</div>
-              <div class="card-display">T♠</div>
-            </div>
-            <p class="text-sm text-gray-400">
-              This is a Royal Flush in Spades. Let's see how it's encoded into
-              bits.
-            </p>
-          </div>
-
-          <div class="bg-gray-800 p-6 rounded-lg overflow-x-auto space-y-4">
-            <p class="text-gray-300 mb-4">How each card's rank sets its bit:</p>
-
-            <div class="bit-table-wrapper">
-              <table class="bit-table">
-                <tbody>
-                  <tr>
-                    <td class="w-24 text-gray-400 pr-4 whitespace-nowrap">
-                      2♣: Bit 2
-                    </td>
-                    <td class="binary-bits">
-                      0000 0000 0000 0000 0000 0000 0000 0<span
-                        class="active-bit"
-                        >1</span
-                      >00
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="w-24 text-gray-400 pr-4 whitespace-nowrap">
-                      8♠: Bit 8
-                    </td>
-                    <td class="binary-bits">
-                      0000 0000 0000 0000 0000 00<span class="active-bit"
-                        >1</span
-                      >0 0000 0000
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="w-24 text-gray-400 pr-4 whitespace-nowrap">
-                      Q♠: Bit 12
-                    </td>
-                    <td class="binary-bits">
-                      0000 0000 0000 0000 000<span class="active-bit">1</span>
-                      0000 0000 0000
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="w-24 text-gray-400 pr-4 whitespace-nowrap">
-                      K♥: Bit 13
-                    </td>
-                    <td class="binary-bits">
-                      0000 0000 0000 0000 00<span class="active-bit">1</span>0
-                      0000 0000 0000
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="w-24 text-gray-400 pr-4 whitespace-nowrap">
-                      3♣: Bit 3
-                    </td>
-                    <td class="binary-bits">
-                      0000 0000 0000 0000 0000 0000 0000
-                      <span class="active-bit">1</span>000
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div class="space-y-2 mt-6">
-              <div class="font-mono text-sm text-gray-400 mb-2">
-                Combined with OR (|):
-              </div>
-              <div class="bit-table-wrapper">
-                <table class="bit-table">
-                  <tbody>
-                    <tr>
-                      <td
-                        class="w-32 text-gray-400 pr-4 align-top whitespace-nowrap"
-                      >
-                        Result =
-                      </td>
-                      <td
-                        class="text-emerald-400 text-lg tabular-nums tracking-[0.3em]"
-                      >
-                        0000 0000 0000 0<span class="text-amber-400">111</span
-                        >1<span class="text-amber-400">1</span>0 0000 0000 0000
-                      </td>
-                    </tr>
-                    <tr>
-                      <td
-                        class="w-32 text-gray-400 pr-4 align-top whitespace-nowrap"
-                      >
-                        Hex =
-                      </td>
-                      <td class="text-emerald-400 text-lg">0x7C00</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div class="mt-6 space-y-2 text-gray-300">
-              <p>This bit pattern has several important properties:</p>
-              <ul class="list-disc pl-6">
-                <li>The bits are consecutive (indicating a straight)</li>
-                <li>The highest bit is at position 14 (Ace-high straight)</li>
-                <li>
-                  When normalized (shifted right to lowest bit), equals 31
-                  (0b11111)
-                </li>
-                <li>
-                  Combined with the suit check (all spades), identifies a Royal
-                  Flush
-                </li>
-              </ul>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -632,18 +508,7 @@ function rankPokerHand(cs, ss) {
 
           <!-- Step 2: Bit Field Construction -->
           <div id="step2" class="step-card bg-gray-800 p-6 rounded-lg">
-            <h3 class="text-xl font-semibold text-blue-400 mb-4">
-              Step 2: Combined Bit Field
-            </h3>
-            <p class="text-gray-300 mb-4">
-              All rank bits are combined using OR operations (|):
-            </p>
-            <div class="bit-field space-y-2">
-              <!-- Will be populated by JavaScript -->
-            </div>
-            <div class="bit-explanation mt-4 text-gray-400">
-              <!-- Will be populated by JavaScript -->
-            </div>
+            Text here
           </div>
 
           <!-- Step 3: Pattern Analysis -->
