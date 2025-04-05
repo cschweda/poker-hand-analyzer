@@ -905,6 +905,7 @@
   padding-bottom: 0.25rem;
   text-align: center;
   font-size: 1rem;
+  white-space: normal;
 }
 
 .tooltip-content {
@@ -912,6 +913,10 @@
   line-height: 1.4;
   display: block;
   padding-top: 0.25rem;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 /* CSS-based smart positioning for tooltips */
@@ -919,12 +924,42 @@
   position: relative;
 }
 
-/* Default tooltip position (above) */
+/* Create a new tooltip container with improved positioning logic */
 .tooltip {
+  visibility: hidden;
   position: absolute;
+  z-index: 100;
+  /* Default position is above and centered */
   bottom: 125%;
   left: 50%;
   transform: translateX(-50%);
+  min-width: 220px;
+  max-width: 450px; /* Increased max-width */
+  padding: 0.75rem 1rem;
+  background-color: theme('colors.gray.900');
+  color: theme('colors.gray.100');
+  border: 1px solid theme('colors.gray.700');
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.2s, visibility 0.2s;
+  /* Remove scrollbars and fixed height */
+  overflow: visible;
+  text-align: left;
+  /* Allow tooltip to grow with content */
+  width: max-content;
+}
+
+/* Default pointer for tooltip (pointing down) */
+.tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: theme('colors.gray.700') transparent transparent transparent;
 }
 
 /* Fallback positions using media queries for small screens */
@@ -1837,7 +1872,7 @@ td[class*="py-2"] span.text-amber-400 {
   left: 50%;
   transform: translateX(-50%);
   min-width: 220px;
-  max-width: 320px;
+  max-width: 450px; /* Increased max-width */
   padding: 0.75rem 1rem;
   background-color: theme('colors.gray.900');
   color: theme('colors.gray.100');
@@ -1846,6 +1881,11 @@ td[class*="py-2"] span.text-amber-400 {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   opacity: 0;
   transition: opacity 0.2s, visibility 0.2s;
+  /* Remove scrollbars and fixed height */
+  overflow: visible;
+  text-align: left;
+  /* Allow tooltip to grow with content */
+  width: max-content;
 }
 
 /* Default pointer for tooltip (pointing down) */

@@ -674,21 +674,21 @@ function updateStepAnalysis(hand) {
             <th>Pattern</th>
           </tr>
           <tr>
-            <td class="pr-4">Combined</td>
+            <td class="pr-4"><span class="tech-term">Combined<span class="tooltip"><span class="tooltip-title">Combined Value</span><span class="tooltip-content">The result of merging all card ranks using bitwise OR operations. Each set bit represents a rank present in the hand. This pattern is the foundation for all hand analysis.</span></span></span></td>
             <td class="font-mono binary-cell">${formatBinary(
               combinedValue,
               32
             )}</td>
           </tr>
           <tr>
-            <td class="pr-4">Normalized</td>
+            <td class="pr-4"><span class="tech-term">Normalized<span class="tooltip"><span class="tooltip-title">Normalized Pattern</span><span class="tooltip-content">The result of dividing the combined value by its lowest set bit. This aligns patterns to remove gaps between bits, making it easy to detect straights when the normalized value equals 31 (binary: 11111).</span></span></span></td>
             <td class="font-mono binary-cell">${formatBinary(
               normalizedPattern,
               32
             )}</td>
           </tr>
           <tr>
-            <td class="pr-4"><span class="tech-term">Hex Value<span class="tooltip"><span class="tooltip-title">Hexadecimal Value</span><span class="tooltip-content">A base-16 representation of the binary pattern, where each digit represents 4 bits. More compact than binary for displaying large numbers.</span></span></span></td>
+            <td class="pr-4"><span class="tech-term">Hex Value<span class="tooltip"><span class="tooltip-title">Hexadecimal Value</span><span class="tooltip-content">A compact base-16 representation of the combined binary pattern. Hex makes it easier to identify specific bit patterns, like 0x7c00 for a royal flush or 0x403c for an ace-low straight, without counting individual bits.</span></span></span></td>
             <td class="font-mono">0x${combinedValue
               .toString(16)
               .toUpperCase()
@@ -698,7 +698,7 @@ function updateStepAnalysis(hand) {
             hand.result && hand.result.v
               ? `
           <tr>
-            <td class="pr-4">v Value</td>
+            <td class="pr-4"><span class="tech-term">v Value<span class="tooltip"><span class="tooltip-title">v Value</span><span class="tooltip-content">The core mathematical value of the algorithm that identifies pairs, three-of-a-kind, etc. It works by using 4-bit counters (nibbles) for each rank, incrementing each time a card of that rank appears. After processing, v mod 15 produces unique values: 6=One Pair, 7=Two Pair, 9=Three of a Kind, 10=Full House, 1=Four of a Kind. This elegant approach avoids nested if/else statements, making the code compact and efficient.</span></span></span></td>
             <td class="font-mono">0x${BigInt(hand.result.v)
               .toString(16)
               .toUpperCase()
