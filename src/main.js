@@ -623,8 +623,28 @@ function updateStepAnalysis(hand) {
             hand.result && hand.result.v
               ? `
           <tr>
-            <td class="pr-4">Other Patterns</td>
-            <td class="font-mono">Bit grouping checks for pairs, three of a kind, etc.</td>
+            <td class="pr-4">Other</td>
+            <td class="font-mono ${
+              [
+                "1 Pair",
+                "2 Pair",
+                "3 of a Kind",
+                "Full House",
+                "4 of a Kind",
+              ].includes(handType)
+                ? "text-emerald-400"
+                : "text-red-500"
+            }">${
+                  [
+                    "1 Pair",
+                    "2 Pair",
+                    "3 of a Kind",
+                    "Full House",
+                    "4 of a Kind",
+                  ].includes(handType)
+                    ? `✓ ${handType} detected`
+                    : "✗ No pairs or sets detected"
+                }</td>
           </tr>`
               : ""
           }

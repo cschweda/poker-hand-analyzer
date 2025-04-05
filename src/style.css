@@ -1624,6 +1624,35 @@ td[class*="py-2"] span.text-amber-400 {
   max-width: none !important;
 }
 
+/* Fix for long text in the pattern analysis section */
+.step-analysis-table td:last-child {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto;
+  letter-spacing: normal;
+}
+
+/* Preserve monospace formatting for binary cells only */
+.step-analysis-table td .binary-cell {
+  white-space: pre !important;
+}
+
+/* Keep special formatting for values that need to preserve white space */
+.step-analysis-table td.font-mono.binary-cell,
+.step-analysis-table td:has(.binary-cell) {
+  white-space: pre !important;
+}
+
+/* Make sure specifically the "Other Patterns" row wraps properly */
+.step-card .calculation-step tr:has(td:first-child:contains("Other Patterns")) td:last-child {
+  white-space: normal !important;
+  word-break: normal;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  letter-spacing: normal !important;
+}
+
 /* Remove the specific Spades table overrides that are no longer needed */
 #spades .bit-reference-table {
   width: 100%;
