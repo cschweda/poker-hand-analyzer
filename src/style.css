@@ -1,0 +1,462 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tab Styles */
+.tab-nav {
+  display: flex;
+  gap: 1px;
+  background-color: theme('colors.gray.900');
+  border-radius: 0.5rem 0.5rem 0 0;
+  padding: 0 1px;
+  width: 100%;
+}
+
+.tab-btn {
+  position: relative;
+  background-color: theme('colors.gray.800');
+  transition: all 0.2s;
+  opacity: 0.7;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  flex: 1;
+  text-align: center;
+}
+
+.tab-btn:hover {
+  opacity: 0.9;
+  color: theme('colors.white');
+}
+
+.tab-btn:first-child {
+  border-top-left-radius: 0.5rem;
+}
+
+.tab-btn:last-child {
+  border-top-right-radius: 0.5rem;
+}
+
+.tab-btn.active {
+  background-color: theme('colors.gray.700');
+  color: theme('colors.white');
+  opacity: 1;
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: theme('colors.blue.500');
+}
+
+/* Important: Use display none/block for tab content visibility */
+.tab-content {
+  display: none;
+  background-color: theme('colors.gray.800');
+  border-radius: 0 0 0.5rem 0.5rem;
+  padding: 1rem;
+}
+
+.tab-content.active {
+  display: block !important;
+}
+
+/* Remove conflicting styles */
+.tab-content:not(.hidden) {
+  display: none;
+}
+
+/* Table Styles */
+.bit-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow-x: auto;
+  display: block;
+}
+
+.bit-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bit-table th {
+  color: theme('colors.gray.300');
+  font-weight: 600;
+  border-bottom: 1px solid theme('colors.gray.600');
+  padding: 0.75rem 1rem;
+  text-align: left;
+  background-color: theme('colors.gray.700');
+}
+
+.bit-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid theme('colors.gray.700');
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.bit-table tr:last-child td {
+  border-bottom: none;
+}
+
+.binary-bits {
+  color: theme('colors.emerald.400');
+  letter-spacing: 0.2em;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.binary-bits .active-bit {
+  color: theme('colors.amber.400');
+  font-weight: bold;
+}
+
+/* Bit Reference Table Styles */
+.bit-reference-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bit-reference-table th,
+.bit-reference-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid theme('colors.gray.700');
+}
+
+.bit-reference-table th {
+  font-weight: 600;
+  color: theme('colors.gray.300');
+}
+
+.bit-reference-table td {
+  font-family: theme('fontFamily.mono');
+}
+
+.bit-reference-table td:nth-child(2) {
+  letter-spacing: 0.1em;
+}
+
+/* Binary Representation Highlighting */
+.binary-group {
+  display: inline-block;
+  padding: 0 0.25rem;
+}
+
+.binary-group.highlight {
+  color: theme('colors.amber.400');
+  font-weight: 600;
+}
+
+/* Code Analysis Table Styles */
+.code-analysis-table {
+  width: auto;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: theme('colors.gray.900');
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5),
+              0 0 0 1px theme('colors.gray.800');
+  margin: 1.5rem 0;
+  table-layout: fixed;
+}
+
+.code-analysis-table th {
+  background-color: theme('colors.gray.800');
+  color: theme('colors.gray.100');
+  font-weight: 600;
+  text-align: left;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 2px solid theme('colors.gray.700');
+  white-space: nowrap;
+}
+
+.code-analysis-table th:first-child {
+  width: 25%;
+}
+
+.code-analysis-table th:last-child {
+  width: 75%;
+}
+
+.code-analysis-table td {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid theme('colors.gray.800');
+  vertical-align: top;
+  background-color: theme('colors.gray.900');
+}
+
+.code-analysis-table tr:nth-child(even) td {
+  background-color: theme('colors.gray.800/50');
+}
+
+.code-analysis-table tr:last-child td {
+  border-bottom: none;
+}
+
+.code-analysis-table td:first-child {
+  background-color: inherit;
+  border-right: 1px solid theme('colors.gray.800');
+}
+
+.code-analysis-table code {
+  color: theme('colors.amber.400');
+  background-color: theme('colors.gray.800');
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.9em;
+  word-break: break-word;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.code-analysis-table ul {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.25rem;
+  list-style-type: disc;
+}
+
+.code-analysis-table li {
+  margin-bottom: 0.5rem;
+  color: theme('colors.gray.300');
+}
+
+.code-analysis-table li:last-child {
+  margin-bottom: 0;
+}
+
+/* Add responsive handling for the table */
+@media (max-width: 768px) {
+  .code-analysis-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .code-analysis-table th,
+  .code-analysis-table td {
+    padding: 1rem;
+  }
+  
+  .code-analysis-table code {
+    white-space: nowrap;
+  }
+}
+
+@layer components {
+  /* Basic body styling for dark mode */
+  body {
+    @apply bg-gray-900 text-gray-200 font-sans;
+  }
+
+  /* Style for code blocks */
+  pre {
+    @apply bg-gray-800 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono mb-6;
+  }
+
+  /* Style for inline code */
+  code:not(pre code) {
+    @apply bg-gray-700 text-amber-300 px-1.5 py-0.5 rounded text-[0.9em];
+  }
+
+  /* Card styling */
+  .card {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 5rem;
+    height: 7rem;
+    border: 1px solid theme('colors.gray.600');
+    border-radius: 0.375rem;
+    background-color: theme('colors.gray.50');
+    color: theme('colors.gray.900');
+    margin: 0.25rem;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+  }
+
+  .card .rank {
+    font-size: 2rem;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .card .suit {
+    font-size: 2rem;
+    margin-top: 0.25rem;
+  }
+
+  .card .suit.red,
+  .card .rank.red {
+    color: theme('colors.red.600');
+  }
+
+  .card .suit.black,
+  .card .rank.black {
+    color: theme('colors.gray.900');
+  }
+
+  /* Card display in tables */
+  .card-display {
+    font-size: 1.75rem;
+    font-weight: bold;
+    padding: 0.75rem;
+    display: inline-block;
+    text-align: center;
+    background-color: theme('colors.gray.100');
+    color: theme('colors.gray.900');
+    border-radius: 0.25rem;
+    margin-right: 0.5rem;
+  }
+
+  .card-display.red {
+    color: theme('colors.red.600');
+  }
+
+  /* Button styling */
+  .deal-button {
+    @apply bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold 
+           transition-all duration-200 cursor-pointer border-0 shadow-md 
+           mx-auto block my-4;
+  }
+
+  .deal-button:hover {
+    @apply bg-blue-700 -translate-y-0.5 shadow-lg;
+  }
+
+  .deal-button:active {
+    @apply bg-blue-800 translate-y-0.5;
+  }
+
+  /* Bit visualization styling */
+  .bit-visualization {
+    @apply bg-gray-800 p-4 rounded-lg mt-4 font-mono overflow-x-auto;
+  }
+
+  .bit-row {
+    @apply flex items-center my-2 p-2 bg-gray-700 rounded;
+  }
+
+  .bit-label {
+    @apply text-gray-300;
+  }
+
+  .bit-value {
+    @apply font-mono tracking-wider;
+  }
+
+  .bit-highlight {
+    @apply text-yellow-400 font-bold;
+  }
+
+  /* Content section styling */
+  .content-section {
+    @apply bg-gray-800 p-6 rounded-xl mb-8 shadow-lg w-full;
+  }
+
+  h1 {
+    @apply text-4xl leading-10 font-bold text-gray-100 mb-4 pb-2 border-b-2 border-blue-600;
+  }
+
+  h2 {
+    @apply text-3xl leading-9 font-semibold text-gray-100 mt-8 mb-4;
+  }
+
+  h3 {
+    @apply text-2xl leading-8 font-semibold text-gray-100 mt-6 mb-4;
+  }
+
+  p {
+    @apply mb-4 leading-relaxed text-gray-300;
+  }
+
+  li {
+    @apply mb-2 text-gray-300;
+  }
+
+  ul {
+    @apply list-disc pl-6 mb-4;
+  }
+}
+
+/* Container styles */
+.container {
+  width: 100%;
+  max-width: none;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.tab-container {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+/* Make sure the explanation div uses full width */
+.mb-6.p-4.bg-gray-900.rounded-lg.text-gray-300 {
+  width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .bit-visualization {
+    padding: 1rem;
+  }
+
+  .bit-card {
+    padding: 1rem;
+  }
+
+  .bit-value {
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+  }
+
+  .tab-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .content-section {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .bit-value {
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+  }
+
+  .card-display {
+    font-size: 1.25rem;
+    padding: 0.5rem;
+  }
+
+  .tab-btn {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+} 

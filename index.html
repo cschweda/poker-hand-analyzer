@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en" class="w-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Interactive JavaScript Poker Hand Analyzer with bitwise operations explanation"
+    />
+    <title>Poker Hand Analyzer</title>
+  </head>
+  <body class="bg-gray-950 text-white min-h-screen w-full">
+    <div class="container mx-auto w-full">
+      <h1 class="text-center mb-8">JavaScript Poker Hand Analyzer Explained</h1>
+
+      <section class="content-section">
+        <h2>Introduction</h2>
+        <p>
+          This page explores a clever JavaScript function designed to analyze a
+          5-card poker hand and determine its rank (e.g., Pair, Straight,
+          Flush). What makes this analyzer unique is its heavy reliance on
+          bitwise and mathematical operations rather than traditional
+          conditional logic (if/else statements).
+        </p>
+        <p>
+          The original author aimed to create a concise and potentially fast
+          algorithm by exploiting JavaScript's features like weakly typed
+          variables (implicit type conversions) and the 52-bit mantissa used in
+          its floating-point number representation. While the resulting code is
+          compact, it's less readable than a standard approach. However,
+          understanding its mechanics offers insight into bit manipulation
+          techniques.
+        </p>
+      </section>
+
+      <section class="content-section">
+        <h2>Original Code Snippet</h2>
+        <p>
+          Below is the core `rankPokerHand` function from the original source,
+          along with its helper variables and some example calls.
+        </p>
+        <pre><code class="language-javascript">
+// Array to map the final calculated index to hand names
+const hands = [
+    "4 of a Kind", "Straight Flush", "Straight", "Flush", "High Card",
+    "1 Pair", "2 Pair", "Royal Flush", "3 of a Kind", "Full House"
+];
+// Card rank constants (Ace high)
+const A=14, K=13, Q=12, J=11;
+// Suit flags (using powers of 2 for potential bitwise operations)
+const _ = { "♠":1, "♣":2, "♥":4, "♦":8 };
+
+// Calculates the Rank of a 5 card Poker hand using bit manipulations.
+function rankPokerHand(cs, ss) {
+  // cs: array of 5 card ranks (2-14)
+  // ss: array of 5 card suits (flags: 1, 2, 4, 8)
+  var v, i, o, s = 1&lt;&lt;cs[0]|1&lt;&lt;cs[1]|1&lt;&lt;cs[2]|1&lt;&lt;cs[3]|1&lt;&lt;cs[4];
+  for (i=-1, v=o=0; i&lt;5; i++, o=Math.pow(2,cs[i]*4)) {v += o*((v/o&amp;15)+1);}
+  v = v % 15 - ((s/(s&amp;-s) == 31) || (s == 0x403c) ? 3 : 1);
+  v -= (ss[0] == (ss[1]|ss[2]|ss[3]|ss[4])) * ((s == 0x7c00) ? -5 : 1);
+
+  return { handName: hands[v], isAceLowStraight: (s == 0x403c) };
+}
+        </code></pre>
+      </section>
+
+      <section class="content-section">
+        <h2>How It Works: Code Analysis</h2>
+        <p class="mb-6">
+          The analyzer uses clever bit manipulation and mathematical operations
+          to determine poker hand ranks. Let's break down each part of the code
+          and understand how it works.
+        </p>
+
+        <div class="overflow-x-auto">
+          <table class="code-analysis-table">
+            <thead>
+              <tr>
+                <th>Code Segment</th>
+                <th>Explanation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>const hands = ["4 of a Kind", ...]</code></td>
+                <td>
+                  Array mapping final calculated indices to hand names. The
+                  order is crucial as the algorithm's mathematical operations
+                  are designed to produce these specific indices.
+                </td>
+              </tr>
+              <tr>
+                <td><code>const A=14, K=13, Q=12, J=11</code></td>
+                <td>
+                  Card rank constants with Ace high (14). These values are used
+                  in the bit manipulation operations to ensure proper hand
+                  ranking.
+                </td>
+              </tr>
+              <tr>
+                <td><code>const _ = {"♠":1, "♣":2, "♥":4, "♦":8}</code></td>
+                <td>
+                  Suit flags using powers of 2, enabling efficient bitwise
+                  operations for flush detection. Each suit's value is a unique
+                  power of 2.
+                </td>
+              </tr>
+              <tr>
+                <td><code>s = 1&lt;&lt;cs[0]|1&lt;&lt;cs[1]|...</code></td>
+                <td>
+                  Creates a bit field where each card's rank sets a
+                  corresponding bit. For example, a hand of [2,3,4,5,6] creates
+                  the binary: ...0000111110
+                </td>
+              </tr>
+              <tr>
+                <td><code>for (i=-1, v=o=0; i&lt;5; i++...)</code></td>
+                <td>
+                  Builds value 'v' encoding card rank counts using 4-bit
+                  nibbles. Each rank gets 4 bits, allowing count tracking up to
+                  15. Uses floating-point mantissa (52 bits) for extended
+                  precision.
+                </td>
+              </tr>
+              <tr>
+                <td><code>v = v % 15 - (...)</code></td>
+                <td>
+                  Modulo 15 creates unique values for different hand types:
+                  <ul>
+                    <li>High Card: 5</li>
+                    <li>One Pair: 6</li>
+                    <li>Two Pair: 7</li>
+                    <li>Three of Kind: 9</li>
+                    <li>Full House: 10</li>
+                    <li>Four of Kind: 1 (16%15)</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><code>(s/(s&amp;-s) == 31) || (s == 0x403c)</code></td>
+                <td>
+                  Straight detection using two methods:
+                  <ul>
+                    <li>s/(s&amp;-s) == 31: Checks for 5 consecutive bits</li>
+                    <li>
+                      s == 0x403c: Special case for Ace-low straight (A,2,3,4,5)
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td><code>ss[0] == (ss[1]|ss[2]|ss[3]|ss[4])</code></td>
+                <td>
+                  Flush detection by comparing first suit with OR of others.
+                  Works because suit values are powers of 2. True only if all
+                  suits match.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2>Bit Field Explanation</h2>
+        <div class="bit-field-explanation mb-6">
+          <p class="mb-4">
+            Let's understand how the poker hand analyzer uses bit fields by
+            looking at an example hand:
+          </p>
+
+          <div class="example-hand bg-gray-900 p-4 rounded-lg mb-6">
+            <h3 class="text-lg font-semibold mb-2">Example Hand:</h3>
+            <div class="flex gap-2 mb-4">
+              <div class="card-display">A♠</div>
+              <div class="card-display">K♠</div>
+              <div class="card-display">Q♠</div>
+              <div class="card-display">J♠</div>
+              <div class="card-display">T♠</div>
+            </div>
+            <p class="text-sm text-gray-400">
+              This is a Royal Flush in Spades. Let's see how it's encoded into
+              bits.
+            </p>
+          </div>
+
+          <div class="bg-gray-800 p-6 rounded-lg overflow-x-auto space-y-4">
+            <p class="text-gray-300 mb-4">
+              Each card's rank is converted to a bit position (2-14, where
+              Ace=14). We set each corresponding bit using a left shift
+              operation:
+            </p>
+
+            <div class="space-y-2">
+              <div class="font-mono text-sm text-gray-400 mb-2">
+                Individual bits for each card:
+              </div>
+              <div class="bit-table-wrapper">
+                <table class="bit-table">
+                  <tbody>
+                    <tr>
+                      <td
+                        class="w-32 text-gray-400 pr-4 align-top whitespace-nowrap"
+                      >
+                        A (14) =
+                      </td>
+                      <td
+                        class="text-emerald-400 text-lg tabular-nums tracking-[0.3em]"
+                      >
+                        0000 0000 0000 0<span class="text-amber-400">1</span>00
+                        0000 0000 0000
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        class="w-32 text-gray-400 pr-4 align-top whitespace-nowrap"
+                      >
+                        K (13) =
+                      </td>
+                      <td
+                        class="text-emerald-400 text-lg tabular-nums tracking-[0.3em]"
+                      >
+                        0000 0000 0000 00<span class="text-amber-400">1</span>0
+                        0000 0000 0000
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        class="w-32 text-gray-400 pr-4 align-top whitespace-nowrap"
+                      >
+                        Q (12) =
+                      </td>
+                      <td
+                        class="text-emerald-400 text-lg tabular-nums tracking-[0.3em]"
+                      >
+                        0000 0000 0000 000<span class="text-amber-400">1</span>
+                        0000 0000 0000
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        class="w-32 text-gray-400 pr-4 align-top whitespace-nowrap"
+                      >
+                        J (11) =
+                      </td>
+                      <td
+                        class="text-emerald-400 text-lg tabular-nums tracking-[0.3em]"
+                      >
+                        0000 0000 0000 0000
+                        <span class="text-amber-400">1</span>000 0000 0000
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        class="w-32 text-gray-400 pr-4 align-top whitespace-nowrap"
+                      >
+                        T (10) =
+                      </td>
+                      <td
+                        class="text-emerald-400 text-lg tabular-nums tracking-[0.3em]"
+                      >
+                        0000 0000 0000 0000 0<span class="text-amber-400"
+                          >1</span
+                        >00 0000 0000
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="space-y-2 mt-6">
+              <div class="font-mono text-sm text-gray-400 mb-2">
+                Combined with OR (|):
+              </div>
+              <div class="bit-table-wrapper">
+                <table class="bit-table">
+                  <tbody>
+                    <tr>
+                      <td
+                        class="w-32 text-gray-400 pr-4 align-top whitespace-nowrap"
+                      >
+                        Result =
+                      </td>
+                      <td
+                        class="text-emerald-400 text-lg tabular-nums tracking-[0.3em]"
+                      >
+                        0000 0000 0000 0<span class="text-amber-400">111</span
+                        >1<span class="text-amber-400">1</span>0 0000 0000 0000
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        class="w-32 text-gray-400 pr-4 align-top whitespace-nowrap"
+                      >
+                        Hex =
+                      </td>
+                      <td class="text-emerald-400 text-lg">0x7C00</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="mt-6 space-y-2 text-gray-300">
+              <p>This bit pattern has several important properties:</p>
+              <ul class="list-disc pl-6">
+                <li>The bits are consecutive (indicating a straight)</li>
+                <li>The highest bit is at position 14 (Ace-high straight)</li>
+                <li>
+                  When normalized (shifted right to lowest bit), equals 31
+                  (0b11111)
+                </li>
+                <li>
+                  Combined with the suit check (all spades), identifies a Royal
+                  Flush
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2>Bit Value Reference</h2>
+        <div class="bit-reference p-6 bg-gray-800 rounded-lg shadow-lg">
+          <p class="mb-4 text-gray-300">
+            Each card is encoded into bits based on its rank (2-14) and suit.
+            Below you can see how each card's bits are represented.
+          </p>
+
+          <div class="tab-container">
+            <!-- Tab buttons -->
+            <div class="tab-nav flex border-b border-gray-700 mb-4">
+              <button
+                class="tab-btn active px-6 py-2 text-gray-300 hover:text-white focus:outline-none"
+                role="tab"
+                aria-selected="true"
+                aria-controls="spades"
+                id="tab-spades"
+              >
+                Spades ♠
+              </button>
+              <button
+                class="tab-btn px-6 py-2 text-gray-300 hover:text-white focus:outline-none"
+                role="tab"
+                aria-selected="false"
+                aria-controls="clubs"
+                id="tab-clubs"
+              >
+                Clubs ♣
+              </button>
+              <button
+                class="tab-btn px-6 py-2 text-gray-300 hover:text-white focus:outline-none"
+                role="tab"
+                aria-selected="false"
+                aria-controls="hearts"
+                id="tab-hearts"
+              >
+                Hearts ♥
+              </button>
+              <button
+                class="tab-btn px-6 py-2 text-gray-300 hover:text-white focus:outline-none"
+                role="tab"
+                aria-selected="false"
+                aria-controls="diamonds"
+                id="tab-diamonds"
+              >
+                Diamonds ♦
+              </button>
+            </div>
+
+            <!-- Tab content -->
+            <div class="tab-content-container">
+              <div
+                id="spades"
+                class="tab-content"
+                role="tabpanel"
+                aria-labelledby="tab-spades"
+              >
+                <div class="bit-table-wrapper">
+                  <table class="bit-table">
+                    <thead>
+                      <tr>
+                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tl">
+                          Card
+                        </th>
+                        <th class="text-left py-2 px-4 bg-gray-700">
+                          Binary (32-bit)
+                        </th>
+                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tr">
+                          Hex
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+              <div
+                id="clubs"
+                class="tab-content hidden"
+                role="tabpanel"
+                aria-labelledby="tab-clubs"
+              >
+                <div class="bit-table-wrapper">
+                  <table class="bit-table">
+                    <thead>
+                      <tr>
+                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tl">
+                          Card
+                        </th>
+                        <th class="text-left py-2 px-4 bg-gray-700">
+                          Binary (32-bit)
+                        </th>
+                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tr">
+                          Hex
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+              <div
+                id="hearts"
+                class="tab-content hidden"
+                role="tabpanel"
+                aria-labelledby="tab-hearts"
+              >
+                <div class="bit-table-wrapper">
+                  <table class="bit-table">
+                    <thead>
+                      <tr>
+                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tl">
+                          Card
+                        </th>
+                        <th class="text-left py-2 px-4 bg-gray-700">
+                          Binary (32-bit)
+                        </th>
+                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tr">
+                          Hex
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+              <div
+                id="diamonds"
+                class="tab-content hidden"
+                role="tabpanel"
+                aria-labelledby="tab-diamonds"
+              >
+                <div class="bit-table-wrapper">
+                  <table class="bit-table">
+                    <thead>
+                      <tr>
+                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tl">
+                          Card
+                        </th>
+                        <th class="text-left py-2 px-4 bg-gray-700">
+                          Binary (32-bit)
+                        </th>
+                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tr">
+                          Hex
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <h2>Interactive Demo</h2>
+        <p>
+          Click the button below to deal a random 5-card hand and see the
+          analyzer determine its rank. The visualization below shows how the
+          bitwise operations work.
+        </p>
+
+        <div class="text-center mb-6">
+          <button id="dealButton" class="deal-button">Deal New Hand</button>
+        </div>
+
+        <div
+          id="handDisplay"
+          role="region"
+          aria-label="Current poker hand display"
+          class="flex flex-wrap justify-center items-center mb-4 min-h-[7rem]"
+        >
+          <!-- Initial placeholder cards -->
+          <div class="card placeholder" role="img" aria-label="Card back"></div>
+          <div class="card placeholder" role="img" aria-label="Card back"></div>
+          <div class="card placeholder" role="img" aria-label="Card back"></div>
+          <div class="card placeholder" role="img" aria-label="Card back"></div>
+          <div class="card placeholder" role="img" aria-label="Card back"></div>
+        </div>
+
+        <div
+          id="resultDisplay"
+          role="status"
+          aria-live="polite"
+          class="text-center font-semibold text-xl min-h-[2rem]"
+        ></div>
+
+        <div id="stepAnalysis" class="mt-8 hidden">
+          <h3 class="text-lg font-semibold mb-6">Step-by-Step Hand Analysis</h3>
+          <div class="step-cards-container space-y-6">
+            <!-- Step 1: Initial Hand -->
+            <div class="analysis-step" id="step1">
+              <div
+                class="step-card bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(0,0,0,0.4)] transition-shadow border border-gray-700/50"
+              >
+                <h4
+                  class="step-title text-blue-400 text-lg font-semibold mb-4 pb-2 border-b border-gray-700/50"
+                >
+                  Step 1: Initial Hand
+                </h4>
+                <div class="step-content space-y-3">
+                  <div class="hand-details bg-gray-900/50 rounded-lg p-4"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2: Bit Field Construction -->
+            <div class="analysis-step" id="step2">
+              <div
+                class="step-card bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(0,0,0,0.4)] transition-shadow border border-gray-700/50"
+              >
+                <h4
+                  class="step-title text-blue-400 text-lg font-semibold mb-4 pb-2 border-b border-gray-700/50"
+                >
+                  Step 2: Bit Field Construction
+                </h4>
+                <div class="step-content space-y-3">
+                  <div
+                    class="bit-field font-mono bg-gray-900/50 rounded-lg p-4"
+                  ></div>
+                  <div
+                    class="bit-explanation text-gray-300 bg-gray-900/50 rounded-lg p-4"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3: Rank Pattern Analysis -->
+            <div class="analysis-step" id="step3">
+              <div
+                class="step-card bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(0,0,0,0.4)] transition-shadow border border-gray-700/50"
+              >
+                <h4
+                  class="step-title text-blue-400 text-lg font-semibold mb-4 pb-2 border-b border-gray-700/50"
+                >
+                  Step 3: Rank Pattern Analysis
+                </h4>
+                <div class="step-content space-y-3">
+                  <div
+                    class="pattern-details bg-gray-900/50 rounded-lg p-4"
+                  ></div>
+                  <div
+                    class="straight-check text-gray-300 bg-gray-900/50 rounded-lg p-4"
+                  ></div>
+                  <div
+                    class="flush-check text-gray-300 bg-gray-900/50 rounded-lg p-4"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 4: Final Calculation -->
+            <div class="analysis-step" id="step4">
+              <div
+                class="step-card bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(0,0,0,0.4)] transition-shadow border border-gray-700/50"
+              >
+                <h4
+                  class="step-title text-blue-400 text-lg font-semibold mb-4 pb-2 border-b border-gray-700/50"
+                >
+                  Step 4: Final Calculation
+                </h4>
+                <div class="step-content space-y-3">
+                  <div
+                    class="calculation-details bg-gray-900/50 rounded-lg p-4"
+                  ></div>
+                  <div
+                    class="final-result text-emerald-400 font-semibold bg-gray-900/50 rounded-lg p-4"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
