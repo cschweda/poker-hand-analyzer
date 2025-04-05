@@ -395,7 +395,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // Add event listener to the deal button
   const dealButton = document.getElementById("dealButton");
   if (dealButton) {
-    dealButton.addEventListener("click", dealHand);
+    dealButton.addEventListener("click", function (e) {
+      // Prevent default button behavior that might cause page jumps
+      e.preventDefault();
+
+      // Deal hand (the dealHand function now handles scrolling)
+      dealHand();
+    });
   } else {
     console.warn("Deal button not found");
   }
@@ -443,7 +449,7 @@ function updateStepAnalysis(hand) {
   const stepAnalysis = document.getElementById("stepAnalysis");
 
   if (!hand || !hand.cards || hand.cards.length === 0) {
-    stepAnalysis.classList.add("hidden");
+    // Don't change visibility here, just return without updating
     return;
   }
 
@@ -521,7 +527,7 @@ function updateStepAnalysis(hand) {
     }
   }
 
-  stepAnalysis.classList.remove("hidden");
+  // Don't automatically show the analysis - let the showResult function control visibility
 
   // Update the step analysis with table structure
   stepAnalysis.innerHTML = `
@@ -869,46 +875,103 @@ function dealHand() {
   const resultDisplay = document.getElementById("resultDisplay");
   const stepAnalysis = document.getElementById("stepAnalysis");
 
-  // Clear any previous result
+  // More accurately check if this is the first deal (all cards are placeholders)
+  // or a subsequent deal (cards are face up)
+  const cardElements = handDisplay.querySelectorAll(".card");
+  const isFirstDeal =
+    cardElements.length > 0 &&
+    Array.from(cardElements).every((card) =>
+      card.classList.contains("placeholder")
+    );
+
+  // Clear any previous result text while preserving the analysis section visibility
   resultDisplay.textContent = "";
   resultDisplay.className = "text-center font-semibold text-xl min-h-[2rem]";
-  stepAnalysis.classList.add("hidden");
+
+  // Only hide analysis if this is the first deal from card backs
+  if (isFirstDeal) {
+    stepAnalysis.classList.add("hidden");
+  }
 
   // Clear previous cards
   handDisplay.innerHTML = "";
 
-  // Display new cards with a sequential deal animation
-  hand.forEach((card, index) => {
+  // Get the bounding rectangle of the hand display area
+  const handDisplayRect = handDisplay.getBoundingClientRect();
+
+  // Calculate how much of the hand display is visible
+  const viewportHeight = window.innerHeight;
+  const handDisplayTop = handDisplayRect.top;
+  const handDisplayVisibleHeight = Math.min(
+    viewportHeight - handDisplayTop,
+    handDisplayRect.height
+  );
+
+  // If less than 70% of the hand display is visible, scroll to it
+  if (handDisplayVisibleHeight < handDisplayRect.height * 0.7) {
+    // Get position relative to the document
+    const handDisplayOffset =
+      handDisplay.getBoundingClientRect().top + window.pageYOffset;
+
+    // Scroll to position hand display near the top of the viewport with some padding
+    window.scrollTo({
+      top: handDisplayOffset - 100, // 100px padding from the top
+      behavior: "smooth",
+    });
+  }
+
+  // First create all card backs (placeholders) without any face card data
+  for (let i = 0; i < 5; i++) {
     const cardDiv = document.createElement("div");
+    cardDiv.className = "card placeholder";
+    cardDiv.setAttribute("role", "img");
+    cardDiv.setAttribute("aria-label", "Card back");
+    cardDiv.setAttribute("data-card-index", i); // Store just the index for later reference
+    handDisplay.appendChild(cardDiv);
+  }
+
+  // Get the newly created card elements
+  const newCardElements = handDisplay.querySelectorAll(".card");
+
+  // After a small delay, start revealing cards one by one
+  newCardElements.forEach((cardDiv, index) => {
+    // Get the corresponding card data
+    const card = hand[index];
     const rankDisplay = rankMap[card.rank];
     const suitSymbolDisplay = suitSymbols[card.suit];
     const isRed = suitColors[card.suit] === "red";
 
-    // Start with a placeholder (face down) and add deal animation class
-    cardDiv.className = "card placeholder";
-    cardDiv.setAttribute("role", "img");
-    cardDiv.setAttribute(
-      "aria-label",
-      `${rankDisplay} of ${suitSymbolDisplay}`
-    );
-
-    handDisplay.appendChild(cardDiv);
-
     // Reveal each card sequentially with a slight delay
     setTimeout(() => {
-      // Replace placeholder with the actual card
-      cardDiv.className = "card deal-animation";
-      cardDiv.innerHTML = `
-        <span class="rank ${isRed ? "red" : "black"}">${rankDisplay}</span>
-        <span class="suit ${
-          isRed ? "red" : "black"
-        }">${suitSymbolDisplay}</span>
-      `;
+      // First remove the placeholder class but keep the card empty
+      cardDiv.className = "card deal-animation-start";
 
-      // After the last card is dealt, show the result
-      if (index === hand.length - 1) {
-        setTimeout(showResult, 500, cardRanksInput, cardSuitsInput, hand);
-      }
+      // After a tiny delay to allow the flip animation to start
+      // (when the card is edge-on and content isn't visible),
+      // add the actual card content
+      setTimeout(() => {
+        // Now add the card content when the card is mid-flip
+        cardDiv.innerHTML = `
+          <span class="rank ${isRed ? "red" : "black"}">${rankDisplay}</span>
+          <span class="suit ${
+            isRed ? "red" : "black"
+          }">${suitSymbolDisplay}</span>
+        `;
+
+        // Complete the animation with the content
+        cardDiv.className = "card deal-animation";
+
+        // Update the aria-label with the actual card info
+        cardDiv.setAttribute(
+          "aria-label",
+          `${rankDisplay} of ${suitSymbolDisplay}`
+        );
+
+        // After the last card is dealt, show the result
+        if (index === hand.length - 1) {
+          setTimeout(showResult, 500, cardRanksInput, cardSuitsInput, hand);
+        }
+      }, 150); // Add content when card is mid-flip (150ms is about halfway through a 300ms flip)
     }, 200 * (index + 1)); // Each card reveals after a 200ms delay from the previous one
   });
 }
@@ -928,16 +991,28 @@ function showResult(cardRanksInput, cardSuitsInput, hand) {
     resultDisplay.className =
       "text-center font-semibold text-xl text-emerald-400";
 
-    // Update the step analysis with the hand and results
-    // Pass the full result to ensure all analysis steps match
+    // Check if analysis is already visible - if so, update content without hiding/showing
+    const isAnalysisHidden = stepAnalysis.classList.contains("hidden");
+
+    // Update the analysis content
     updateStepAnalysis({
       cards: hand.map((card) => ({ ...card, rankValue: card.rank })),
-      result: result, // Pass the full result from rankPokerHand
+      result: result,
     });
+
+    // If analysis was hidden, explicitly show it (otherwise leave it visible)
+    if (isAnalysisHidden) {
+      stepAnalysis.classList.remove("hidden");
+    }
+
+    // We don't force any scroll position here to preserve the view
+    // set in the dealHand function
   } catch (error) {
     console.error("Error analyzing hand:", error);
     resultDisplay.textContent = "Error analyzing hand. Check console.";
     resultDisplay.className = "text-center font-semibold text-xl text-red-500";
+
+    // Only hide analysis if there's an error
     stepAnalysis.classList.add("hidden");
   }
 }
