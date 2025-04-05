@@ -93,7 +93,9 @@ To view debug information:
 
 ### 1. Building
 
-This is a static web application that needs to be built before serving:
+This is a static web application that needs to be built before serving. You can use any of the following package managers:
+
+#### Using NPM
 
 ```bash
 # Install dependencies
@@ -103,11 +105,47 @@ npm install
 npm run build
 ```
 
+#### Using Yarn
+
+```bash
+# Install dependencies
+yarn install
+
+# Build the application
+yarn build
+```
+
+#### Using PNPM
+
+```bash
+# Install PNPM if you haven't already
+npm install -g pnpm
+
+# Install dependencies
+pnpm install
+
+# Build the application
+pnpm build
+```
+
 ### 2. Serving
 
 You have several options for serving the built application:
 
-#### Option 1: Using Node.js
+#### Option 1: Using Development Server
+
+```bash
+# NPM
+npm run dev
+
+# Yarn
+yarn dev
+
+# PNPM
+pnpm dev
+```
+
+#### Option 2: Using Node.js Static Servers
 
 ```bash
 # Using http-server (Node.js)
@@ -119,7 +157,7 @@ npm install -g serve
 serve ./dist
 ```
 
-#### Option 2: Using Python
+#### Option 3: Using Python
 
 ```bash
 # Using Python 3's built-in server
@@ -129,7 +167,7 @@ python3 -m http.server --directory ./dist
 python -m SimpleHTTPServer
 ```
 
-#### Option 3: Using PHP
+#### Option 4: Using PHP
 
 ```bash
 # Using PHP's built-in server
@@ -137,6 +175,12 @@ php -S localhost:8000 -t ./dist
 ```
 
 The application will be available at `http://localhost:8000` (or whatever port your chosen server uses).
+
+### Development Requirements
+
+- Node.js 16.x or higher
+- NPM 7.x or higher, Yarn 1.22.x or higher, or PNPM 6.x or higher
+- Modern web browser with JavaScript enabled
 
 ## How It Works
 
