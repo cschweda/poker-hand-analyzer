@@ -47,42 +47,29 @@ const suits = { "♠": 1, "♣": 2, "♥": 4, "♦": 8 };
 const suitSymbols = { 1: "♠", 2: "♣", 4: "♥", 8: "♦" };
 const suitColors = { 1: "black", 2: "black", 4: "red", 8: "red" };
 
-// Function to format binary with highlighted bits for both rank and suit
-function formatBinaryWithHighlight(rank, suitValue) {
-  // Create 32-bit binary string with leading zeros for rank (MSB to LSB)
-  const rankBinary = (1n << BigInt(rank)).toString(2).padStart(32, "0");
+// Helper function to format binary with highlighting
+function formatBinaryWithHighlight(
+  number,
+  length = 32,
+  highlightPositions = []
+) {
+  const binary = BigInt(number).toString(2).padStart(length, "0");
+  const groups = binary.match(/.{1,4}/g) || [];
 
-  // Create 4-bit binary string for suit value (rightmost 4 bits)
-  const suitBinary = suitValue.toString(2).padStart(4, "0");
-
-  // Split into groups of 4 for readability (left to right)
-  const groups = rankBinary.match(/.{1,4}/g);
-
-  // Highlight both the rank bit and suit bits
   return groups
-    .map((group, i) => {
-      if (i === groups.length - 1) {
-        // Last group (rightmost 4 bits) - show suit bits
-        return group
-          .split("")
-          .map((bit, pos) => {
-            // Check if this is a set suit bit (in positions 0-3)
-            const isSuitBit = pos < 4 && suitBinary[pos] === "1";
-            return isSuitBit
-              ? `<span class="text-amber-400">${bit}</span>`
-              : bit;
-          })
-          .join("");
-      } else if (group.includes("1")) {
-        // Group containing rank bit (positions 2-14)
-        const pos = group.indexOf("1");
-        return (
-          group.slice(0, pos) +
-          `<span class="text-amber-400">${group[pos]}</span>` +
-          group.slice(pos + 1)
-        );
-      }
-      return group;
+    .map((group, groupIndex) => {
+      const bits = group
+        .split("")
+        .map((bit, bitIndex) => {
+          const position = groupIndex * 4 + bitIndex;
+          const isSetBit = bit === "1";
+          if (isSetBit || highlightPositions.includes(position)) {
+            return `<span class="active-bit">${bit}</span>`;
+          }
+          return bit;
+        })
+        .join("");
+      return `<span class="bit-group">${bits}</span>`;
     })
     .join(" ");
 }
@@ -214,13 +201,28 @@ function generateBitReferenceTables() {
     }
 
     const rows = ranks.map((rank) => {
+      // Calculate the combined value (rank bit + suit bit)
+      const rankBit = 1n << BigInt(rank.value);
+      const suitBit = BigInt(config.bitValue);
+      const combinedValue = rankBit | suitBit;
+
+      // Get positions of set bits for highlighting
+      const setPositions = [rank.value]; // Rank bit position
+      if (config.bitValue & 1) setPositions.push(0); // Spades
+      if (config.bitValue & 2) setPositions.push(1); // Clubs
+      if (config.bitValue & 4) setPositions.push(2); // Hearts
+      if (config.bitValue & 8) setPositions.push(3); // Diamonds
+
+      // Format binary with highlighting for all 32 bits
       const binaryDisplay = formatBinaryWithHighlight(
-        rank.value,
-        config.bitValue
+        combinedValue,
+        32,
+        setPositions
       );
-      const combinedValue =
-        (1n << BigInt(rank.value)) | BigInt(config.bitValue);
-      const hexValue = combinedValue.toString(16).toUpperCase();
+      const hexValue = combinedValue
+        .toString(16)
+        .toUpperCase()
+        .padStart(4, "0");
       const cardDisplay = `<span class="card-display ${
         config.isRed ? "red" : ""
       }">${rank.name}${config.symbol}</span>`;
@@ -319,193 +321,184 @@ document.addEventListener("DOMContentLoaded", () => {
     dealButton.addEventListener("click", dealHand);
   }
 
+  // Ensure step analysis is hidden initially
+  const stepAnalysis = document.getElementById("stepAnalysis");
+  if (stepAnalysis) {
+    stepAnalysis.classList.add("hidden");
+  }
+
   console.log("Application initialization complete");
 });
 
-// Function to format binary number into groups of 4 bits
+// Function to format binary number into groups of 4 bits with highlighting
 function formatBinary(num, size = 32) {
-  // Convert to binary string, pad to size bits (MSB to LSB)
-  return BigInt(num)
-    .toString(2)
-    .padStart(size, "0")
-    .match(/.{1,4}/g) // Group into sets of 4 bits
-    .join(" ");
+  return formatBinaryWithHighlight(num, size, []);
 }
 
-// Function to format a single bit position
+// Function to format a single bit position with highlighting
 function formatSingleBitField(position) {
-  // Shift 1 left by position bits (counting from right, LSB = 0)
   const value = 1n << BigInt(position);
-  return formatBinary(value);
+  return formatBinaryWithHighlight(value, 32, [position]);
 }
 
-// Function to update the step-by-step analysis
-function updateStepAnalysis(hand, s, v, s_normalized, resultIndex) {
+// Add this function before updateStepAnalysis
+function formatCard(card) {
+  const rankSymbol = rankMap[card.rank];
+  const suitSymbol = suitSymbols[card.suit];
+  const isRed = suitColors[card.suit] === "red";
+  return `<span class="card-display ${
+    isRed ? "red" : ""
+  }">${rankSymbol}${suitSymbol}</span>`;
+}
+
+// Update the step analysis functions
+function updateStepAnalysis(hand) {
   const stepAnalysis = document.getElementById("stepAnalysis");
+
+  if (!hand || !hand.cards || hand.cards.length === 0) {
+    stepAnalysis.classList.add("hidden");
+    return;
+  }
+
+  // Calculate the combined value and other patterns
+  const combinedValue = hand.cards.reduce(
+    (acc, card) => acc | (1n << BigInt(card.rankValue)),
+    0n
+  );
+  const allSetPositions = hand.cards.map((card) => card.rankValue);
+
+  const lowestBit = combinedValue & -combinedValue;
+  const normalizedPattern = lowestBit ? combinedValue / lowestBit : 0n;
+
+  const isStraight = normalizedPattern === 31n || combinedValue === 0x403cn;
+  const isFlush = hand.cards.every((card) => card.suit === hand.cards[0].suit);
+
   stepAnalysis.classList.remove("hidden");
 
-  // Step 1: Initial Hand
-  const handDetails = document.querySelector("#step1 .hand-details");
-  handDetails.innerHTML = hand
-    .map((card) => {
-      const rankStr = rankMap[card.rank];
-      const suitStr = suitSymbols[card.suit];
-      return `
-      <div class="card-detail mb-2">
-        <span class="font-mono">${rankStr}${suitStr}</span>
-        <span class="text-gray-400 ml-4">Rank: ${card.rank}</span>
-        <div class="mt-1 font-mono text-sm">
-          Bit ${card.rank} (1 << ${card.rank}) = ${formatSingleBitField(
-        card.rank
-      )}
-        </div>
+  // Update the step analysis with table structure
+  stepAnalysis.innerHTML = `
+    <div class="step-card">
+      <h3 class="text-xl font-semibold mb-4">Step-by-Step Analysis</h3>
+      
+      <div class="calculation-step">
+        <div class="font-semibold mb-2">Step 1: Individual Card Patterns</div>
+        <table class="w-full text-left">
+          <tr>
+            <th class="w-32 pr-4">Card</th>
+            <th>Binary Pattern</th>
+          </tr>
+          ${hand.cards
+            .map((card) => {
+              const rankBit = 1n << BigInt(card.rankValue);
+              const suitBit = BigInt(card.suit);
+              const cardPattern = rankBit | suitBit;
+              return `
+                <tr>
+                  <td class="pr-4">${formatCard(card)}</td>
+                  <td class="font-mono">${formatBinaryWithHighlight(
+                    cardPattern,
+                    32,
+                    [
+                      card.rankValue,
+                      card.suit < 4 ? card.suit : 2, // Adjust suit bit position
+                    ]
+                  )}</td>
+                </tr>
+              `;
+            })
+            .join("")}
+        </table>
       </div>
-    `;
-    })
-    .join("");
 
-  // Step 2: Bit Field Construction
-  const bitField = document.querySelector("#step2 .bit-field");
-  const bitExplanation = document.querySelector("#step2 .bit-explanation");
-
-  // Show the combined bit field
-  bitField.innerHTML = `
-    <div class="mb-2">Combined Bit Field (s):</div>
-    <div class="font-mono mb-2 text-emerald-400">${formatBinary(s)}</div>
-    <div class="text-gray-400">Hex: 0x${s.toString(16).toUpperCase()}</div>
-  `;
-
-  // Show how each card contributes to the field
-  bitExplanation.innerHTML = `
-    <div class="mb-2">How each card's rank sets its bit:</div>
-    ${hand
-      .map(
-        (card) => `
-      <div class="ml-4 mt-2 font-mono text-sm">
-        ${rankMap[card.rank]}${suitSymbols[card.suit]}: Bit ${card.rank}
-        <div class="mt-1 text-emerald-400">${formatSingleBitField(
-          card.rank
-        )}</div>
+      <div class="calculation-step">
+        <div class="font-semibold mb-2">Step 2: Combined Pattern</div>
+        <table class="w-full text-left">
+          <tr>
+            <th class="w-32 pr-4">Pattern</th>
+            <th>Binary Value</th>
+          </tr>
+          <tr>
+            <td class="pr-4">Combined</td>
+            <td class="font-mono">${formatBinaryWithHighlight(
+              combinedValue,
+              32,
+              allSetPositions
+            )}</td>
+          </tr>
+        </table>
       </div>
-    `
-      )
-      .join("")}
-  `;
 
-  // Step 3: Rank Pattern Analysis
-  const patternDetails = document.querySelector("#step3 .pattern-details");
-  const straightCheck = document.querySelector("#step3 .straight-check");
-  const flushCheck = document.querySelector("#step3 .flush-check");
+      <div class="calculation-step">
+        <div class="font-semibold mb-2">Step 3: Pattern Analysis</div>
+        <table class="w-full text-left">
+          <tr>
+            <th class="w-32 pr-4">Check</th>
+            <th>Result</th>
+          </tr>
+          <tr>
+            <td class="pr-4">Normalized</td>
+            <td class="font-mono">${formatBinaryWithHighlight(
+              normalizedPattern,
+              32,
+              allSetPositions
+            )}</td>
+          </tr>
+          <tr>
+            <td class="pr-4">Straight</td>
+            <td class="font-mono ${
+              isStraight ? "text-emerald-400" : "text-red-500"
+            }">${
+    isStraight
+      ? `✓ Straight detected${combinedValue === 0x403cn ? " (Ace-low)" : ""}`
+      : "✗ Not a straight - bits not consecutive"
+  }</td>
+          </tr>
+          <tr>
+            <td class="pr-4">Flush</td>
+            <td class="font-mono ${
+              isFlush ? "text-emerald-400" : "text-red-500"
+            }">${
+    isFlush
+      ? `✓ Flush detected - all ${suitSymbols[hand.cards[0].suit]}`
+      : "✗ Not a flush - suits don't match"
+  }</td>
+          </tr>
+        </table>
+      </div>
 
-  // Check for straight
-  const isStraight = s_normalized === 31 || s === 0x403c;
-  const isAceLow = s === 0x403c;
-
-  // Check for flush
-  const isFlush = hand.every((card) => card.suit === hand[0].suit);
-
-  // Calculate nibble values for each rank
-  const nibbleValues = hand.reduce((acc, card) => {
-    acc[card.rank] = (acc[card.rank] || 0) + 1;
-    return acc;
-  }, {});
-
-  patternDetails.innerHTML = `
-    <div class="mb-2">1. Normalized Pattern:</div>
-    <div class="font-mono mb-2 text-emerald-400">${formatBinary(
-      s_normalized
-    )}</div>
-    <div class="text-gray-400 mb-4">This is the bit pattern shifted right to its lowest set bit.</div>
-
-    <div class="mb-2">2. Value (v) Calculation:</div>
-    <div class="font-mono text-sm space-y-2">
-      ${Object.entries(nibbleValues)
-        .map(([rank, count]) => {
-          const offset = BigInt(2) ** BigInt(rank * 4);
-          return `
-            <div class="mb-2 bg-gray-800/50 p-2 rounded">
-              <div>Rank ${rank} (${
-            rankMap[rank]
-          }) appears ${count} time(s):</div>
-              <div class="ml-4">• Position: ${rank} * 4 = ${rank * 4} bits</div>
-              <div class="ml-4">• Offset: 2^${
-                rank * 4
-              } = ${offset.toString()}</div>
-              <div class="ml-4">• Nibble value: ${count}</div>
-            </div>
-          `;
-        })
-        .join("")}
-    </div>
-
-    <div class="mt-4 mb-2">3. Final Value Calculation:</div>
-    <div class="text-gray-400 space-y-2">
-      <div>• Raw v = ${v.toLocaleString()}</div>
-      <div>• Modulo 15 = ${v % 15}</div>
-      <div class="mt-2 text-sm">The value v is built by accumulating 4-bit nibbles for each rank,
-      where each nibble stores the count of cards of that rank. The modulo 15 operation then
-      maps this to a unique index for each hand type.</div>
-    </div>
-  `;
-
-  straightCheck.innerHTML = `
-    <div class="mb-2">Straight Detection:</div>
-    <div class="font-mono mb-2">${
-      isStraight
-        ? `<span class="text-emerald-400">✓ Straight detected${
-            isAceLow ? " (Ace-low)" : ""
-          }</span>`
-        : `<span class="text-red-500">✗ Not a straight - bits not consecutive</span>`
-    }</div>
-    ${
-      isAceLow
-        ? `<div class="font-mono text-sm">Special case: 0x403c = <span class="text-emerald-400">${formatBinary(
-            0x403c
-          )}</span></div>`
-        : ""
-    }
-    <div class="text-sm text-gray-400 mt-2">
-      A straight is detected in two ways:
-      <div class="ml-4 mt-1">1. Five consecutive bits (s/lowest_bit = 31)</div>
-      <div class="ml-4">2. Special case for A,2,3,4,5 (s = 0x403c)</div>
+      <div class="calculation-step">
+        <div class="font-semibold mb-2">Final Result</div>
+        <table class="w-full text-left">
+          <tr>
+            <th class="w-32 pr-4">Value</th>
+            <th>Pattern</th>
+          </tr>
+          <tr>
+            <td class="pr-4">Combined</td>
+            <td class="font-mono">${formatBinaryWithHighlight(
+              combinedValue,
+              32,
+              allSetPositions
+            )}</td>
+          </tr>
+          <tr>
+            <td class="pr-4">Normalized</td>
+            <td class="font-mono">${formatBinaryWithHighlight(
+              normalizedPattern,
+              32,
+              allSetPositions
+            )}</td>
+          </tr>
+          <tr>
+            <td class="pr-4">Hex Value</td>
+            <td class="font-mono">0x${combinedValue
+              .toString(16)
+              .padStart(8, "0")}</td>
+          </tr>
+        </table>
+      </div>
     </div>
   `;
-
-  flushCheck.innerHTML = `
-    <div class="mb-2">Flush Detection:</div>
-    <div class="font-mono mb-2">${
-      isFlush
-        ? `<span class="text-emerald-400">✓ Flush detected - all suits match (${
-            suitSymbols[hand[0].suit]
-          })</span>`
-        : `<span class="text-red-500">✗ Not a flush - suits don't match</span>`
-    }</div>
-    <div class="text-sm text-gray-400 mt-2">
-      Flush check compares first suit with OR of others:
-      <div class="ml-4 mt-1">• First suit: ${hand[0].suit} (${
-    suitSymbols[hand[0].suit]
-  })</div>
-      <div class="ml-4">• Other suits: ${hand
-        .slice(1)
-        .map((c) => suitSymbols[c.suit])
-        .join(", ")}</div>
-    </div>
-  `;
-
-  // Step 4: Final Calculation
-  const calcDetails = document.querySelector("#step4 .calculation-details");
-  const finalResult = document.querySelector("#step4 .final-result");
-
-  calcDetails.innerHTML = `
-    <div class="space-y-2">
-      <div class="mb-2">Base Value: ${v % 15}</div>
-      <div class="mb-2">Straight Adjustment: ${isStraight ? "-3" : "-1"}</div>
-      <div class="mb-2">Flush Adjustment: ${isFlush ? "-1" : "0"}</div>
-      <div class="mt-4 font-mono">Final Index: ${resultIndex}</div>
-    </div>
-  `;
-
-  finalResult.textContent = `Final Hand Rank: ${hands[resultIndex]}`;
 }
 
 function rankPokerHand(cs, ss) {
@@ -596,8 +589,13 @@ function dealHand() {
 
   const handDisplay = document.getElementById("handDisplay");
   const resultDisplay = document.getElementById("resultDisplay");
+  const stepAnalysis = document.getElementById("stepAnalysis");
 
+  // Clear previous hand and hide step analysis
   handDisplay.innerHTML = "";
+  stepAnalysis.classList.add("hidden");
+
+  // Display new cards
   hand.forEach((card) => {
     const cardDiv = document.createElement("div");
     const rankDisplay = rankMap[card.rank];
@@ -626,16 +624,13 @@ function dealHand() {
       "text-center font-semibold text-xl text-emerald-400";
 
     // Update the step analysis with the hand and results
-    updateStepAnalysis(
-      hand,
-      result.s,
-      result.v,
-      result.s_normalized,
-      result.resultIndex
-    );
+    updateStepAnalysis({
+      cards: hand.map((card) => ({ ...card, rankValue: card.rank })),
+    });
   } catch (error) {
     console.error("Error analyzing hand:", error);
     resultDisplay.textContent = "Error analyzing hand. Check console.";
     resultDisplay.className = "text-center font-semibold text-xl text-red-500";
+    stepAnalysis.classList.add("hidden");
   }
 }

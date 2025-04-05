@@ -71,47 +71,104 @@
 
 /* Table Styles */
 .bit-table {
-  width: 100%;
+  width: auto;
+  min-width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  overflow-x: auto;
-  display: block;
-}
-
-.bit-table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  background-color: theme('colors.gray.900');
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5),
+              0 0 0 1px theme('colors.gray.800');
+  margin: 1.5rem 0;
+  table-layout: auto;
 }
 
 .bit-table th {
-  color: theme('colors.gray.300');
+  background-color: theme('colors.gray.800');
+  color: theme('colors.gray.100');
   font-weight: 600;
-  border-bottom: 1px solid theme('colors.gray.600');
-  padding: 0.75rem 1rem;
   text-align: left;
-  background-color: theme('colors.gray.700');
+  padding: 1.25rem 1.5rem;
+  border-bottom: 2px solid theme('colors.gray.700');
+  white-space: nowrap;
 }
 
 .bit-table td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid theme('colors.gray.700');
-  font-family: 'Consolas', 'Monaco', monospace;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid theme('colors.gray.800');
+  vertical-align: top;
+  background-color: theme('colors.gray.900');
+}
+
+.bit-table tr:nth-child(even) td {
+  background-color: theme('colors.gray.800/50');
 }
 
 .bit-table tr:last-child td {
   border-bottom: none;
 }
 
+.bit-table th:first-child,
+.bit-table td:first-child {
+  width: 15%;
+}
+
+.bit-table th:nth-child(2),
+.bit-table td:nth-child(2) {
+  width: 70%;
+}
+
+.bit-table th:last-child,
+.bit-table td:last-child {
+  width: 15%;
+}
+
+.bit-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background-color: theme('colors.gray.900');
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Binary bits styling - consistent across all views */
 .binary-bits {
   color: theme('colors.emerald.400');
   letter-spacing: 0.2em;
   font-family: 'Consolas', 'Monaco', monospace;
+  white-space: pre;
+  display: inline-block;
+  padding: 0.25rem;
+  background-color: theme('colors.gray.800/30');
+  border-radius: 0.25rem;
+  width: auto;
+  overflow-x: auto;
+}
+
+.binary-bits .bit-group {
+  display: inline-block;
+  padding: 0 0.25rem;
 }
 
 .binary-bits .active-bit {
   color: theme('colors.amber.400');
   font-weight: bold;
+  background-color: theme('colors.amber.900/30');
+  padding: 0.1rem 0.2rem;
+  border-radius: 0.25rem;
+  margin: -0.1rem 0;
+}
+
+/* Ensure consistent styling in tables */
+.bit-table td .binary-bits,
+.suit-bits-table td .binary-bits,
+.code-analysis-table td .binary-bits {
+  background-color: theme('colors.gray.800/30');
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  width: 100%;
 }
 
 /* Bit Reference Table Styles */
@@ -435,6 +492,21 @@
   .content-section {
     padding: 1rem;
   }
+
+  .binary-bits {
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
+  }
+  
+  .binary-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .binary-label {
+    min-width: auto;
+    margin-bottom: 0.25rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -459,4 +531,393 @@
     padding-left: 4rem;
     padding-right: 4rem;
   }
+}
+
+/* Technical Term Tooltips */
+.tech-term {
+  position: relative;
+  display: inline-block;
+  color: theme('colors.blue.400');
+  border-bottom: 1px dotted theme('colors.blue.400');
+  cursor: help;
+}
+
+.tooltip {
+  visibility: hidden;
+  position: absolute;
+  z-index: 100;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 200px;
+  max-width: 300px;
+  padding: 0.75rem 1rem;
+  background-color: theme('colors.gray.900');
+  color: theme('colors.gray.100');
+  border: 1px solid theme('colors.gray.700');
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.2s, visibility 0.2s;
+}
+
+.tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: theme('colors.gray.700') transparent transparent transparent;
+}
+
+.tech-term:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip-title {
+  color: theme('colors.blue.400');
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.tooltip-content {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Suit Bits Reference Table */
+.suit-bits-table {
+  width: auto;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: theme('colors.gray.900');
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5),
+              0 0 0 1px theme('colors.gray.800');
+  margin: 1.5rem 0;
+  table-layout: auto;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.suit-bits-table th {
+  background-color: theme('colors.gray.800');
+  color: theme('colors.gray.100');
+  font-weight: 600;
+  text-align: left;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 2px solid theme('colors.gray.700');
+  white-space: nowrap;
+}
+
+.suit-bits-table td {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid theme('colors.gray.800');
+  vertical-align: middle;
+  background-color: theme('colors.gray.900');
+  letter-spacing: 0.2em;
+}
+
+.suit-bits-table tr:nth-child(even) td {
+  background-color: theme('colors.gray.800/50');
+}
+
+.suit-bits-table tr:last-child td {
+  border-bottom: none;
+}
+
+.suit-bits-table .suit-name {
+  font-size: 1.25rem;
+  white-space: nowrap;
+  color: theme('colors.gray.100');
+}
+
+.suit-bits-table .suit-symbol {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+.suit-bits-table .suit-symbol.red {
+  color: theme('colors.red.500');
+}
+
+.suit-bits-table .suit-symbol.black {
+  color: theme('colors.gray.100');
+}
+
+.suit-bits-table .binary-bits {
+  color: theme('colors.emerald.400');
+  letter-spacing: 0.2em;
+}
+
+.suit-bits-table .binary-bits .active-bit {
+  color: theme('colors.amber.400');
+  font-weight: bold;
+  background-color: theme('colors.amber.900/30');
+  padding: 0.1rem 0.2rem;
+  border-radius: 0.25rem;
+}
+
+.suit-bits-table .bit-positions {
+  color: theme('colors.gray.500');
+  font-size: 0.8em;
+  letter-spacing: 0.2em;
+}
+
+/* Interactive Demo Bit Highlighting */
+.step-card .binary-bits,
+.step-card .binary-value {
+  font-family: 'Consolas', 'Monaco', monospace;
+  letter-spacing: 0.5em;  /* Increased letter spacing for better alignment */
+  white-space: pre;       /* Preserve whitespace */
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background-color: theme('colors.gray.800/30');
+  border-radius: 0.25rem;
+  width: auto;
+  min-width: 32ch;       /* Ensure minimum width for 32 bits plus spacing */
+  font-variant-numeric: tabular-nums;  /* Use monospace numbers */
+  text-align: left;
+}
+
+.step-card .binary-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  background-color: theme('colors.gray.900/30');
+  border-radius: 0.25rem;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.step-card .binary-label {
+  min-width: 8rem;
+  flex-shrink: 0;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.step-card .bit-group {
+  display: inline-block;
+  letter-spacing: 0.5em;
+  margin: 0 0.25em;
+}
+
+.step-card .active-bit {
+  color: theme('colors.amber.400');
+  font-weight: bold;
+  background-color: theme('colors.amber.900/30');
+  padding: 0.1rem 0.2rem;
+  border-radius: 0.25rem;
+  margin: -0.1rem 0;
+  display: inline-block;
+  min-width: 1ch;
+  text-align: center;
+}
+
+/* Ensure consistent spacing in calculation steps */
+.step-card .calculation-step .binary-bits,
+.step-card .calculation-step .binary-value {
+  margin-top: 0.5rem;
+  display: block;
+  width: 100%;
+}
+
+/* Preserve alignment in pattern analysis */
+.step-card .pattern-details .binary-row,
+.step-card .straight-check .binary-row,
+.step-card .flush-check .binary-row {
+  margin-bottom: 0.5rem;
+}
+
+/* Analysis step cards */
+.analysis-step {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.analysis-step.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.step-card {
+  backdrop-filter: blur(8px);
+}
+
+/* Binary visualization improvements */
+.binary-visualization {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.binary-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  background-color: theme('colors.gray.900/30');
+  border-radius: 0.25rem;
+  width: 100%;
+}
+
+.binary-label {
+  min-width: 8rem;
+  color: theme('colors.gray.400');
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.binary-value {
+  font-family: 'Consolas', 'Monaco', monospace;
+  letter-spacing: 0.2em;
+  flex-grow: 1;
+}
+
+/* Binary representation styling */
+.binary-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.5rem 0;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.05em;
+  white-space: pre;
+}
+
+.binary-label {
+  min-width: 100px;
+  text-align: right;
+  color: #9CA3AF;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.binary-value {
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  min-width: 400px;
+}
+
+.bit-group {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0.25rem;
+}
+
+.active-bit {
+  color: #34D399;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Step analysis section styling - ensure perfect vertical alignment */
+.step-card {
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.step-card .binary-bits,
+.step-card .binary-value,
+.step-card .bit-group {
+  font-family: 'Consolas', 'Monaco', monospace;
+  letter-spacing: 0.5em;
+  white-space: pre;
+  display: inline-block;
+  line-height: 2;
+  height: 2em;
+  vertical-align: middle;
+  padding: 0 0.5rem;
+  margin: 0.25rem 0;
+}
+
+.step-card .binary-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  background-color: theme('colors.gray.800/30');
+  border-radius: 0.25rem;
+}
+
+.step-card .binary-label {
+  min-width: 120px;
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: 1rem;
+  color: theme('colors.gray.400');
+}
+
+.step-card .binary-value {
+  flex-grow: 1;
+  min-width: 400px;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+}
+
+.step-card .calculation-step {
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: theme('colors.gray.900/50');
+  border-radius: 0.5rem;
+}
+
+.step-card .active-bit {
+  color: theme('colors.amber.400');
+  background-color: theme('colors.amber.900/30');
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: inherit;
+  height: auto;
+}
+
+/* Force monospace and alignment for all numbers and bits */
+.step-card .binary-bits *,
+.step-card .binary-value *,
+.step-card .bit-group * {
+  font-family: 'Consolas', 'Monaco', monospace !important;
+  vertical-align: middle !important;
+  line-height: inherit !important;
+}
+
+.step-card table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 0.5rem 0;
+}
+
+.step-card th,
+.step-card td {
+  padding: 0.5rem;
+  text-align: left;
+  vertical-align: middle;
+  font-family: 'Consolas', 'Monaco', monospace;
+  white-space: pre;
+}
+
+.step-card td:first-child {
+  width: 120px;
+  text-align: right;
+  padding-right: 1rem;
+  color: theme('colors.gray.400');
+}
+
+.step-card td:last-child {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5em;
 } 
