@@ -81,7 +81,6 @@ function generateBitReferenceTables() {
   // First, find or create the tab container
   let tabContainer = document.querySelector(".tab-container");
   if (!tabContainer) {
-    // Create and insert the tab container if it doesn't exist
     tabContainer = document.createElement("div");
     tabContainer.className = "tab-container";
     const contentSection = document.querySelector(".content-section");
@@ -89,25 +88,14 @@ function generateBitReferenceTables() {
       contentSection.appendChild(tabContainer);
     } else {
       console.warn("No content section found to add tab container");
-      return; // Exit if we can't find a place to add the container
+      return;
     }
   }
 
-  const ranks = [
-    { name: "A", value: 14 },
-    { name: "K", value: 13 },
-    { name: "Q", value: 12 },
-    { name: "J", value: 11 },
-    { name: "T", value: 10 },
-    { name: "9", value: 9 },
-    { name: "8", value: 8 },
-    { name: "7", value: 7 },
-    { name: "6", value: 6 },
-    { name: "5", value: 5 },
-    { name: "4", value: 4 },
-    { name: "3", value: 3 },
-    { name: "2", value: 2 },
-  ];
+  // Create tab navigation
+  const tabNav = document.createElement("div");
+  tabNav.className = "tab-nav";
+  tabContainer.appendChild(tabNav);
 
   const suitConfigs = {
     spades: { symbol: "♠", id: "spades", isRed: false, bitValue: 1 },
@@ -115,6 +103,20 @@ function generateBitReferenceTables() {
     hearts: { symbol: "♥", id: "hearts", isRed: true, bitValue: 4 },
     diamonds: { symbol: "♦", id: "diamonds", isRed: true, bitValue: 8 },
   };
+
+  // Create tab buttons
+  Object.entries(suitConfigs).forEach(([suit, config]) => {
+    const tabButton = document.createElement("button");
+    tabButton.id = `tab-${config.id}`;
+    tabButton.className = `tab-btn ${config.isRed ? "text-red-500" : ""}`;
+    tabButton.setAttribute("role", "tab");
+    tabButton.setAttribute("aria-controls", config.id);
+    tabButton.setAttribute("aria-selected", "false");
+    tabButton.innerHTML = `${config.symbol} ${
+      suit.charAt(0).toUpperCase() + suit.slice(1)
+    }`;
+    tabNav.appendChild(tabButton);
+  });
 
   // Add explanation div before the tables
   const explanationDiv = document.createElement("div");
@@ -203,7 +205,6 @@ function generateBitReferenceTables() {
       </li>
     </ul>
   `;
-  tabContainer.appendChild(explanationDiv);
 
   // Create tables for each suit
   Object.entries(suitConfigs).forEach(([suit, config]) => {
@@ -214,7 +215,8 @@ function generateBitReferenceTables() {
     if (!tableContainer) {
       tableContainer = document.createElement("div");
       tableContainer.id = config.id;
-      tableContainer.className = "table-container";
+      tableContainer.setAttribute("role", "tabpanel");
+      tableContainer.className = "table-container hidden";
       tabContainer.appendChild(tableContainer);
     }
 
@@ -235,6 +237,21 @@ function generateBitReferenceTables() {
 
     // Create table body
     const tbody = document.createElement("tbody");
+    const ranks = [
+      { name: "A", value: 14 },
+      { name: "K", value: 13 },
+      { name: "Q", value: 12 },
+      { name: "J", value: 11 },
+      { name: "T", value: 10 },
+      { name: "9", value: 9 },
+      { name: "8", value: 8 },
+      { name: "7", value: 7 },
+      { name: "6", value: 6 },
+      { name: "5", value: 5 },
+      { name: "4", value: 4 },
+      { name: "3", value: 3 },
+      { name: "2", value: 2 },
+    ];
     ranks.forEach((rank) => {
       const rankBit = 1n << BigInt(rank.value);
       const suitBit = BigInt(config.bitValue);
@@ -327,11 +344,11 @@ function initializeTabs() {
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM loaded, initializing application...");
 
-  // Initialize tabs
-  initializeTabs();
-
-  // Generate bit reference tables
+  // Generate bit reference tables first
   generateBitReferenceTables();
+
+  // Then initialize tabs
+  initializeTabs();
 
   // Add deal button handler
   const dealButton = document.getElementById("dealButton");
@@ -400,6 +417,14 @@ function updateStepAnalysis(hand) {
       
       <div class="calculation-step">
         <div class="font-semibold mb-2">Step 1: Individual Card Patterns</div>
+        <p class="text-gray-300 mb-4">
+          Each card in the hand is converted into a unique 32-bit binary pattern. The pattern combines:
+          <ul class="list-disc ml-6 mb-4 text-gray-300">
+            <li>The card's rank (2-14) sets a single bit in positions 2-14</li>
+            <li>The card's suit (♠♣♥♦) sets a single bit in the rightmost 4 positions</li>
+            <li>This creates a unique binary fingerprint for each card</li>
+          </ul>
+        </p>
         <table class="w-full text-left">
           <tr>
             <th class="w-32 pr-4">Card</th>
@@ -416,10 +441,7 @@ function updateStepAnalysis(hand) {
                   <td class="font-mono">${formatBinaryWithHighlight(
                     cardPattern,
                     32,
-                    [
-                      card.rankValue,
-                      card.suit < 4 ? card.suit : 2, // Adjust suit bit position
-                    ]
+                    [card.rankValue, card.suit < 4 ? card.suit : 2]
                   )}</td>
                 </tr>
               `;
@@ -430,6 +452,14 @@ function updateStepAnalysis(hand) {
 
       <div class="calculation-step">
         <div class="font-semibold mb-2">Step 2: Combined Pattern</div>
+        <p class="text-gray-300 mb-4">
+          All card patterns are merged using bitwise OR operations. This creates a single 32-bit pattern where:
+          <ul class="list-disc ml-6 mb-4 text-gray-300">
+            <li>Each set bit represents a rank present in the hand</li>
+            <li>Multiple cards of the same rank only set their bit once</li>
+            <li>This pattern is crucial for detecting straights and other patterns</li>
+          </ul>
+        </p>
         <table class="w-full text-left">
           <tr>
             <th class="w-32 pr-4">Pattern</th>
@@ -448,6 +478,15 @@ function updateStepAnalysis(hand) {
 
       <div class="calculation-step">
         <div class="font-semibold mb-2">Step 3: Pattern Analysis</div>
+        <p class="text-gray-300 mb-4">
+          The combined pattern is analyzed to detect specific hand types:
+          <ul class="list-disc ml-6 mb-4 text-gray-300">
+            <li>Straight detection: Checks if set bits are consecutive (normalized pattern = 31)</li>
+            <li>Ace-low straight: Special case check (pattern = 0x403c)</li>
+            <li>Flush detection: Verifies all cards share the same suit</li>
+            <li>The normalized pattern helps identify straights by removing gaps</li>
+          </ul>
+        </p>
         <table class="w-full text-left">
           <tr>
             <th class="w-32 pr-4">Check</th>
@@ -486,6 +525,15 @@ function updateStepAnalysis(hand) {
 
       <div class="calculation-step">
         <div class="font-semibold mb-2">Final Result</div>
+        <p class="text-gray-300 mb-4">
+          The final analysis combines all previous calculations to determine the hand rank:
+          <ul class="list-disc ml-6 mb-4 text-gray-300">
+            <li>Combined pattern shows all ranks present in the hand</li>
+            <li>Normalized pattern helps identify special sequences</li>
+            <li>Hex value provides a compact representation of the hand</li>
+            <li>These values together determine the final poker hand ranking</li>
+          </ul>
+        </p>
         <table class="w-full text-left">
           <tr>
             <th class="w-32 pr-4">Value</th>
