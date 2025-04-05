@@ -47,7 +47,47 @@ Source: [@CodeProject](https://www.codeproject.com/Articles/569271/A-Poker-hand-
 - Interactive card dealing and hand analysis
 - Step-by-step visualization of the bit manipulation process
 - Detailed explanations of how each poker hand is detected
+- Comprehensive validation and error checking
+- Debug logging for analysis verification
 
+## Debug & Validation
+
+The analyzer includes extensive debug logging and validation:
+
+### Debug Logging
+
+- Input validation and preprocessing
+- Rank bit field generation
+- Step-by-step hand value calculation
+- Straight and flush detection
+- Final hand value computation
+
+### Validation Checks
+
+- Card count validation (must be exactly 5 cards)
+- Rank validation (2-14, where 14 is Ace)
+- Suit validation (♠=1, ♣=2, ♥=4, ♦=8)
+- Input array validation
+- Bit field consistency checks
+
+### Console Output
+
+Example debug output for a Royal Flush:
+
+```javascript
+Input: { cards: [14, 13, 12, 11, 10], suits: [1, 1, 1, 1, 1] }
+Rank bit field: 00000000000001111100000000000000
+Step 1: { cardRank: "init", offset: 0, prevValue: 0, newValue: 0, groupCount: 0 }
+...
+Final value: 7
+```
+
+To view debug information:
+
+1. Open browser developer tools (F12)
+2. Go to Console tab
+3. Deal a new hand or analyze existing hand
+4. Review the step-by-step analysis
 
 ## Building and Running
 

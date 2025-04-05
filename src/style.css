@@ -69,106 +69,296 @@
   display: none;
 }
 
-/* Table Styles */
+/* Base table styles */
+.bit-table-wrapper {
+  width: 100%;
+  margin: 1rem 0;
+  background-color: rgba(17, 24, 39, 0.8);
+  border-radius: 0.5rem;
+}
+
 .bit-table {
-  width: auto;
-  min-width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background-color: theme('colors.gray.900');
-  border-radius: 0.75rem;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5),
-              0 0 0 1px theme('colors.gray.800');
-  margin: 1.5rem 0;
-  table-layout: auto;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  background-color: rgb(17, 24, 39);
+}
+
+.bit-table th,
+.bit-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid rgb(55, 65, 81);
 }
 
 .bit-table th {
-  background-color: theme('colors.gray.800');
-  color: theme('colors.gray.100');
+  background-color: rgb(31, 41, 55);
+  color: white;
   font-weight: 600;
-  text-align: left;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 2px solid theme('colors.gray.700');
-  white-space: nowrap;
+}
+
+.bit-table th:first-child {
+  border-top-left-radius: 0.5rem;
+}
+
+.bit-table th:last-child {
+  border-top-right-radius: 0.5rem;
 }
 
 .bit-table td {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid theme('colors.gray.800');
-  vertical-align: top;
-  background-color: theme('colors.gray.900');
+  color: rgb(209, 213, 219);
 }
 
-.bit-table tr:nth-child(even) td {
-  background-color: theme('colors.gray.800/50');
+.bit-table .card-display {
+  display: inline-block;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  min-width: 2.5rem;
+  text-align: center;
 }
 
-.bit-table tr:last-child td {
-  border-bottom: none;
+.bit-table .card-display.red {
+  color: #dc2626;
 }
 
+.bit-table .binary-bits {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  white-space: pre;
+  background: rgba(31, 41, 55, 0.5);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  display: block;
+}
+
+.bit-table .rank-bit {
+  color: rgb(251, 191, 36);
+  font-weight: 600;
+}
+
+.bit-table .suit-bit {
+  color: rgb(52, 211, 153);
+  font-weight: 600;
+}
+
+/* Remove all position absolute and overflow properties */
+.bit-table,
+.bit-table *,
+.bit-table *::before,
+.bit-table *::after {
+  position: static;
+  overflow: visible;
+}
+
+/* Ensure proper cell sizing */
+.bit-table td:first-child {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.bit-table td:nth-child(2) {
+  width: auto;
+}
+
+.bit-table td:last-child {
+  width: auto;
+}
+
+@media (max-width: 768px) {
+  .bit-table {
+    font-size: 0.8rem;
+  }
+  
+  .bit-table th,
+  .bit-table td {
+    padding: 0.5rem;
+  }
+}
+
+/* Card display */
+.card-display {
+  display: inline-block;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+.card-display.red {
+  color: #dc2626;
+}
+
+/* Binary representation */
+.binary-bits {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.875rem;
+  background: rgba(31, 41, 55, 0.5);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  letter-spacing: 0.2em;
+  white-space: pre;
+}
+
+/* Bit highlighting */
+.rank-bit {
+  color: rgb(251, 191, 36);
+  font-weight: 600;
+}
+
+.suit-bit {
+  color: rgb(52, 211, 153);
+  font-weight: 600;
+}
+
+/* Desktop styles (> 768px) */
+@media (min-width: 768px) {
+  .bit-table th,
+  .bit-table td {
+    padding: 1rem;
+  }
+
+  .bit-table td:first-child {
+    width: 80px;
+  }
+
+  .bit-table td:nth-child(2) {
+    width: 40%;
+  }
+}
+
+/* Mobile styles (< 768px) */
+@media (max-width: 767px) {
+  .bit-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .bit-table {
+    min-width: 650px; /* Ensure table doesn't get too squished */
+  }
+
+  .binary-bits {
+    font-size: 0.75rem; /* Slightly smaller on mobile */
+  }
+}
+
+/* Table Styles */
+.bit-table th,
+.bit-table td {
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.bit-table th {
+  background-color: rgb(55, 65, 81);
+  color: white;
+  font-weight: 600;
+  text-align: left;
+}
+
+.bit-table td {
+  color: rgb(209, 213, 219);
+}
+
+/* Fixed column widths */
 .bit-table th:first-child,
 .bit-table td:first-child {
-  width: 15%;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
 }
 
 .bit-table th:nth-child(2),
 .bit-table td:nth-child(2) {
-  width: 70%;
+  width: 40%;
+  min-width: 400px;
 }
 
 .bit-table th:last-child,
 .bit-table td:last-child {
-  width: 15%;
+  min-width: 200px;
 }
 
-.bit-table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  background-color: theme('colors.gray.900');
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+/* Explanation text */
+.bit-table td p {
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Colored text in explanations */
+.text-amber-400 {
+  color: rgb(251, 191, 36);
+}
+
+.text-emerald-400 {
+  color: rgb(52, 211, 153);
+}
+
+.font-semibold {
+  font-weight: 600;
 }
 
 /* Binary bits styling - consistent across all views */
 .binary-bits {
-  color: theme('colors.emerald.400');
-  letter-spacing: 0.2em;
-  font-family: 'Consolas', 'Monaco', monospace;
-  white-space: pre;
+  font-family: monospace;
+  white-space: nowrap;
   display: inline-block;
-  padding: 0.25rem;
-  background-color: theme('colors.gray.800/30');
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  padding: 0.5rem;
+  background-color: rgba(31, 41, 55, 0.5);
   border-radius: 0.25rem;
-  width: auto;
-  overflow-x: auto;
 }
 
-.binary-bits .bit-group {
-  display: inline-block;
-  padding: 0 0.25rem;
-}
-
-.binary-bits .active-bit {
-  color: theme('colors.amber.400');
+.rank-bit {
+  color: #fbbf24;
   font-weight: bold;
-  background-color: theme('colors.amber.900/30');
+  background-color: rgba(251, 191, 36, 0.2);
   padding: 0.1rem 0.2rem;
   border-radius: 0.25rem;
-  margin: -0.1rem 0;
 }
 
-/* Ensure consistent styling in tables */
-.bit-table td .binary-bits,
-.suit-bits-table td .binary-bits,
-.code-analysis-table td .binary-bits {
-  background-color: theme('colors.gray.800/30');
-  padding: 0.25rem 0.5rem;
+.suit-bit {
+  color: #34d399;
+  font-weight: bold;
+  background-color: rgba(52, 211, 153, 0.2);
+  padding: 0.1rem 0.2rem;
   border-radius: 0.25rem;
-  width: 100%;
+}
+
+.bit-table td .binary-bits {
+  white-space: nowrap;
+  display: inline-block;
+}
+
+/* Remove any styles that might cause wrapping */
+.binary-bits span,
+.binary-bits .rank-bit,
+.binary-bits .suit-bit,
+.binary-bits .bit-group,
+.binary-bits .active-bit {
+  display: inline;
+  white-space: pre;
+  vertical-align: baseline;
+}
+
+/* Ensure table cells don't wrap */
+.bit-table td,
+.bit-table th {
+  white-space: nowrap;
+  vertical-align: middle;
 }
 
 /* Bit Reference Table Styles */
@@ -920,4 +1110,31 @@
 .step-card td:last-child {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.5em;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+th, td {
+  padding: 0.75rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid #374151;
+}
+
+th {
+  background-color: #1f2937;
+  font-weight: 600;
+}
+
+td code {
+  font-family: 'Consolas', 'Monaco', monospace;
+  white-space: pre;
+  display: block;
+  padding: 0.5rem;
+  background: rgba(31, 41, 55, 0.5);
+  border-radius: 0.25rem;
 } 

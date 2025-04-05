@@ -501,12 +501,50 @@ function updateStepAnalysis(hand) {
   `;
 }
 
+function validateHand(hand) {
+  if (!hand || !Array.isArray(hand) || hand.length !== 5) {
+    console.error("Invalid hand: Must have exactly 5 cards");
+    return false;
+  }
+
+  // Validate ranks and suits
+  for (let card of hand) {
+    if (!card.rank || !card.suit) {
+      console.error("Invalid card:", card);
+      return false;
+    }
+    if (card.rank < 2 || card.rank > 14) {
+      console.error("Invalid rank:", card.rank);
+      return false;
+    }
+    if (![1, 2, 4, 8].includes(card.suit)) {
+      console.error("Invalid suit:", card.suit);
+      return false;
+    }
+  }
+
+  return true;
+}
+
 function rankPokerHand(cs, ss) {
-  var v,
-    i,
-    o,
-    s =
-      (1 << cs[0]) | (1 << cs[1]) | (1 << cs[2]) | (1 << cs[3]) | (1 << cs[4]);
+  // Input validation
+  if (
+    !Array.isArray(cs) ||
+    !Array.isArray(ss) ||
+    cs.length !== 5 ||
+    ss.length !== 5
+  ) {
+    throw new Error("Invalid input: Must provide two arrays of length 5");
+  }
+
+  console.log("Input:", { cards: cs, suits: ss });
+
+  // Create bit field for ranks
+  var s =
+    (1 << cs[0]) | (1 << cs[1]) | (1 << cs[2]) | (1 << cs[3]) | (1 << cs[4]);
+  console.log("Rank bit field:", s.toString(2).padStart(32, "0"));
+
+  var v, i, o;
 
   try {
     for (i = -1, v = o = 0; i < 5; i++) {
@@ -584,8 +622,20 @@ function dealHand() {
   const deck = shuffleDeck(createDeck());
   const hand = deck.slice(0, 5);
 
+  // Validate hand before analysis
+  if (!validateHand(hand)) {
+    console.error("Invalid hand dealt");
+    return;
+  }
+
   const cardRanksInput = hand.map((card) => card.rank);
   const cardSuitsInput = hand.map((card) => card.suit);
+
+  // Validate inputs for rankPokerHand
+  console.log("Validating hand inputs:", {
+    ranks: cardRanksInput,
+    suits: cardSuitsInput,
+  });
 
   const handDisplay = document.getElementById("handDisplay");
   const resultDisplay = document.getElementById("resultDisplay");

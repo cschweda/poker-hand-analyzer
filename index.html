@@ -52,14 +52,64 @@ const _ = { "♠":1, "♣":2, "♥":4, "♦":8 };
 
 // Calculates the Rank of a 5 card Poker hand using bit manipulations.
 function rankPokerHand(cs, ss) {
-  // cs: array of 5 card ranks (2-14)
-  // ss: array of 5 card suits (flags: 1, 2, 4, 8)
-  var v, i, o, s = 1&lt;&lt;cs[0]|1&lt;&lt;cs[1]|1&lt;&lt;cs[2]|1&lt;&lt;cs[3]|1&lt;&lt;cs[4];
-  for (i=-1, v=o=0; i&lt;5; i++, o=Math.pow(2,cs[i]*4)) {v += o*((v/o&amp;15)+1);}
-  v = v % 15 - ((s/(s&amp;-s) == 31) || (s == 0x403c) ? 3 : 1);
-  v -= (ss[0] == (ss[1]|ss[2]|ss[3]|ss[4])) * ((s == 0x7c00) ? -5 : 1);
-
-  return { handName: hands[v], isAceLowStraight: (s == 0x403c) };
+  console.log('Input:', { cards: cs, suits: ss });
+  
+  // Create bit field for ranks
+  var s = 1&lt;&lt;cs[0]|1&lt;&lt;cs[1]|1&lt;&lt;cs[2]|1&lt;&lt;cs[3]|1&lt;&lt;cs[4];
+  console.log('Rank bit field:', s.toString(2).padStart(32, '0'));
+  
+  // Calculate hand value
+  var v, i, o;
+  for (i=-1, v=o=0; i&lt;5; i++, o=Math.pow(2,cs[i]*4)) {
+    var prevV = v;
+    v += o*((v/o&amp;15)+1);
+    console.log(`Step ${i+1}:`, {
+      cardRank: i >= 0 ? cs[i] : 'init',
+      offset: o,
+      prevValue: prevV,
+      newValue: v,
+      groupCount: (v/o&amp;15)
+    });
+  }
+  
+  // Check for straights
+  var isStraight = s/(s&amp;-s) == 31;
+  var isAceLowStraight = s == 0x403c;
+  console.log('Straight detection:', {
+    normalStraight: isStraight,
+    aceLowStraight: isAceLowStraight,
+    bitPattern: s.toString(16)
+  });
+  
+  v = v % 15;
+  console.log('After mod 15:', v);
+  
+  v = v - (isStraight || isAceLowStraight ? 3 : 1);
+  console.log('After straight adjustment:', v);
+  
+  // Check for flush
+  var isFlush = ss[0] == (ss[1]|ss[2]|ss[3]|ss[4]);
+  var isRoyal = s == 0x7c00;
+  console.log('Flush detection:', {
+    isFlush,
+    isRoyal,
+    suits: ss.map(x => x.toString(2).padStart(4, '0'))
+  });
+  
+  v -= isFlush * (isRoyal ? -5 : 1);
+  console.log('Final value:', v);
+  
+  return { 
+    handName: hands[v], 
+    isAceLowStraight: isAceLowStraight,
+    debug: {
+      finalIndex: v,
+      bitField: s.toString(2).padStart(32, '0'),
+      isFlush,
+      isStraight: isStraight || isAceLowStraight,
+      isRoyal
+    }
+  };
 }
         </code></pre>
       </section>
@@ -292,166 +342,170 @@ function rankPokerHand(cs, ss) {
 
       <section class="content-section">
         <h2>Bit Field Explanation</h2>
-        <div class="bit-field-explanation mb-6">
-          <p class="text-center text-xl text-gray-400 py-8">
-            Under Construction
-          </p>
-        </div>
-      </section>
-
-      <section class="content-section">
-        <h2>Bit Value Reference</h2>
-        <div class="bit-reference p-6 bg-gray-800 rounded-lg shadow-lg">
-          <p class="mb-4 text-gray-300">
-            Each card is encoded into bits based on its rank (2-14) and suit.
-            Below you can see how each card's bits are represented.
-          </p>
-
-          <div class="tab-container">
-            <!-- Tab buttons -->
-            <div class="tab-nav flex border-b border-gray-700 mb-4">
-              <button
-                class="tab-btn active px-6 py-2 text-gray-300 hover:text-white focus:outline-none"
-                role="tab"
-                aria-selected="true"
-                aria-controls="spades"
-                id="tab-spades"
-              >
-                Spades ♠
-              </button>
-              <button
-                class="tab-btn px-6 py-2 text-gray-300 hover:text-white focus:outline-none"
-                role="tab"
-                aria-selected="false"
-                aria-controls="clubs"
-                id="tab-clubs"
-              >
-                Clubs ♣
-              </button>
-              <button
-                class="tab-btn px-6 py-2 text-gray-300 hover:text-white focus:outline-none"
-                role="tab"
-                aria-selected="false"
-                aria-controls="hearts"
-                id="tab-hearts"
-              >
-                Hearts ♥
-              </button>
-              <button
-                class="tab-btn px-6 py-2 text-gray-300 hover:text-white focus:outline-none"
-                role="tab"
-                aria-selected="false"
-                aria-controls="diamonds"
-                id="tab-diamonds"
-              >
-                Diamonds ♦
-              </button>
-            </div>
-
-            <!-- Tab content -->
-            <div class="tab-content-container">
-              <div
-                id="spades"
-                class="tab-content"
-                role="tabpanel"
-                aria-labelledby="tab-spades"
-              >
-                <div class="bit-table-wrapper">
-                  <table class="bit-table">
-                    <thead>
-                      <tr>
-                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tl">
-                          Card
-                        </th>
-                        <th class="text-left py-2 px-4 bg-gray-700">
-                          Binary (32-bit)
-                        </th>
-                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tr">
-                          Hex
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
-                </div>
-              </div>
-              <div
-                id="clubs"
-                class="tab-content hidden"
-                role="tabpanel"
-                aria-labelledby="tab-clubs"
-              >
-                <div class="bit-table-wrapper">
-                  <table class="bit-table">
-                    <thead>
-                      <tr>
-                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tl">
-                          Card
-                        </th>
-                        <th class="text-left py-2 px-4 bg-gray-700">
-                          Binary (32-bit)
-                        </th>
-                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tr">
-                          Hex
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
-                </div>
-              </div>
-              <div
-                id="hearts"
-                class="tab-content hidden"
-                role="tabpanel"
-                aria-labelledby="tab-hearts"
-              >
-                <div class="bit-table-wrapper">
-                  <table class="bit-table">
-                    <thead>
-                      <tr>
-                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tl">
-                          Card
-                        </th>
-                        <th class="text-left py-2 px-4 bg-gray-700">
-                          Binary (32-bit)
-                        </th>
-                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tr">
-                          Hex
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
-                </div>
-              </div>
-              <div
-                id="diamonds"
-                class="tab-content hidden"
-                role="tabpanel"
-                aria-labelledby="tab-diamonds"
-              >
-                <div class="bit-table-wrapper">
-                  <table class="bit-table">
-                    <thead>
-                      <tr>
-                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tl">
-                          Card
-                        </th>
-                        <th class="text-left py-2 px-4 bg-gray-700">
-                          Binary (32-bit)
-                        </th>
-                        <th class="text-left py-2 px-4 bg-gray-700 rounded-tr">
-                          Hex
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="container mx-auto max-w-[1200px] px-4">
+          <table>
+            <thead>
+              <tr>
+                <th>Card</th>
+                <th>Binary Representation (MSB → LSB)</th>
+                <th>Explanation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>A♠</td>
+                <td>
+                  <code
+                    >00000000000000000<span
+                      class="bg-amber-400 text-gray-900 font-semibold"
+                      >0100</span
+                    >0000000<span class="text-emerald-400 font-semibold"
+                      >0001</span
+                    ></code
+                  >
+                </td>
+                <td>
+                  The Ace of Spades sets two bits: Bit 14 (0100) for the Ace
+                  rank and Bit 0 (0001) for the Spades suit. The Ace uses the
+                  highest rank position (14) in the leftmost region, while
+                  Spades uses the lowest suit position (0) in the rightmost
+                  region.
+                </td>
+              </tr>
+              <tr>
+                <td>K♣</td>
+                <td>
+                  <code
+                    >00000000000000000<span
+                      class="bg-amber-400 text-gray-900 font-semibold"
+                      >0010</span
+                    >0000000<span class="text-emerald-400 font-semibold"
+                      >0010</span
+                    ></code
+                  >
+                </td>
+                <td>
+                  The King of Clubs sets two bits: Bit 13 (0010) for the King
+                  rank and Bit 1 (0010) for the Clubs suit. The King uses the
+                  second-highest rank position, one position right of the Ace's
+                  position.
+                </td>
+              </tr>
+              <tr>
+                <td>Q♥</td>
+                <td>
+                  <code
+                    >00000000000000000<span
+                      class="bg-amber-400 text-gray-900 font-semibold"
+                      >0001</span
+                    >0000000<span class="text-emerald-400 font-semibold"
+                      >0100</span
+                    ></code
+                  >
+                </td>
+                <td>
+                  The Queen of Hearts sets two bits: Bit 12 (0001) for the Queen
+                  rank and Bit 2 (0100) for the Hearts suit. The Queen uses bit
+                  position 12, continuing the pattern of face cards using the
+                  highest bit positions.
+                </td>
+              </tr>
+              <tr>
+                <td>J♦</td>
+                <td>
+                  <code
+                    >00000000000000000<span
+                      class="bg-amber-400 text-gray-900 font-semibold"
+                      >0000</span
+                    >1000000<span class="text-emerald-400 font-semibold"
+                      >1000</span
+                    ></code
+                  >
+                </td>
+                <td>
+                  The Jack of Diamonds sets two bits: Bit 11 (1000) for the Jack
+                  rank and Bit 3 (1000) for the Diamonds suit. The Jack, as the
+                  lowest face card, uses bit position 11, while Diamonds uses
+                  the highest suit bit.
+                </td>
+              </tr>
+              <tr>
+                <td>5♠</td>
+                <td>
+                  <code
+                    >000000000000000000000000<span
+                      class="bg-amber-400 text-gray-900 font-semibold"
+                      >0010</span
+                    ><span class="text-emerald-400 font-semibold"
+                      >0001</span
+                    ></code
+                  >
+                </td>
+                <td>
+                  The Five of Spades sets two bits: Bit 5 (0010) for the Five
+                  rank and Bit 0 (0001) for the Spades suit. Notice how the rank
+                  bit position (5) matches the card's value, making it intuitive
+                  to locate.
+                </td>
+              </tr>
+              <tr>
+                <td>4♣</td>
+                <td>
+                  <code
+                    >000000000000000000000000<span
+                      class="bg-amber-400 text-gray-900 font-semibold"
+                      >0001</span
+                    ><span class="text-emerald-400 font-semibold"
+                      >0010</span
+                    ></code
+                  >
+                </td>
+                <td>
+                  The Four of Clubs sets two bits: Bit 4 (0001) for the Four
+                  rank and Bit 1 (0010) for the Clubs suit. The rank bit
+                  position (4) equals the card's value, continuing the pattern
+                  for number cards.
+                </td>
+              </tr>
+              <tr>
+                <td>3♥</td>
+                <td>
+                  <code
+                    >000000000000000000000000<span
+                      class="bg-amber-400 text-gray-900 font-semibold"
+                      >0000</span
+                    ><span class="text-emerald-400 font-semibold"
+                      >0100</span
+                    ></code
+                  >
+                </td>
+                <td>
+                  The Three of Hearts sets two bits: Bit 3 (0000 1000) for the
+                  Three rank and Bit 2 (0100) for the Hearts suit. The rank bit
+                  is now closer to the suit bits as we move to lower values.
+                </td>
+              </tr>
+              <tr>
+                <td>2♦</td>
+                <td>
+                  <code
+                    >000000000000000000000000<span
+                      class="bg-amber-400 text-gray-900 font-semibold"
+                      >0000</span
+                    ><span class="text-emerald-400 font-semibold"
+                      >1000</span
+                    ></code
+                  >
+                </td>
+                <td>
+                  The Two of Diamonds sets two bits: Bit 2 (0000 0100) for the
+                  Two rank and Bit 3 (1000) for the Diamonds suit. This is the
+                  lowest rank, using bit position 2, while still maintaining the
+                  same suit bit pattern.
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
