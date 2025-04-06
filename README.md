@@ -64,7 +64,7 @@ The analyzer uses bitwise operations to identify poker hands through four simple
 
 ## Interactive Demo
 
-Try the [live demo](https://poker-analyzer.netlify.app/) to see the analyzer in action!
+https://poker-analyzer.netlify.app/
 
 ## Features
 
