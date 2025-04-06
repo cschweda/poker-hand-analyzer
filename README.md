@@ -84,9 +84,6 @@ If you're interested in learning more about the binary and bitwise concepts used
 - [JavaScript Bitwise Operations Guide](https://js-bitwise.netlify.app/) - A comprehensive tutorial on bitwise operators in JavaScript
 - [Binary Number Cheat Sheet](https://binary-cheat.netlify.app/) - A reference guide for understanding binary representation and number systems
 
-## Demo
-
-https://poker-analyzer.netlify.app/
 
 ## Debug & Validation
 
